@@ -25,7 +25,6 @@ jobs:
 
       - name: Generate Xcode project
         run: xcodegen generate
-        working-directory: OCHE
 
       # Unsigned build for a real device. AltStore/AltServer re-signs the
       # app with your free Apple ID when you sideload it, so no certificates
@@ -33,7 +32,7 @@ jobs:
       - name: Build (unsigned, for iOS device)
         run: |
           xcodebuild \
-            -project OCHE/OCHE.xcodeproj \
+            -project OCHE.xcodeproj \
             -scheme OCHE \
             -configuration Release \
             -sdk iphoneos \
