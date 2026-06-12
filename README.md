@@ -55,77 +55,54 @@ If you'd rather not install XcodeGen, you can create the project by hand:
 
 ## Building an IPA via GitHub Actions (no Mac required)
 
-`.github/workflows/build-ipa.yml` builds a signed `.ipa` on a macOS GitHub
-runner and uploads it as a workflow artifact. To use it you need an Apple ID
-(a free account is enough for a development-signed build you can install on
-your own registered devices via Xcode or a sideloading tool).
+`.github/workflows/build-ipa.yml` builds an **unsigned** `.ipa` on a macOS
+GitHub runner and uploads it as a workflow artifact — no certificates,
+provisioning profiles, or paid Apple Developer account needed. You install it
+on your iPhone via **AltStore**, which re-signs it on your behalf using your
+free Apple ID.
 
-### 1. Create a signing certificate
+### 1. Get the IPA from CI
 
-On a Mac (yours, a friend's, or a rented one — you only need to do this
-once):
+Push to `main`, or trigger manually from your repo's **Actions** tab →
+"Build IPA" → "Run workflow". When it finishes, open the run and download the
+`OCHE-ipa` artifact (a zip containing `OCHE.ipa`).
 
-```sh
-# Generates a private key + CSR
-openssl genrsa -out ios_dev.key 2048
-openssl req -new -key ios_dev.key -out ios_dev.csr -subj "/CN=OCHE Dev/"
-```
+### 2. Install AltServer + AltStore
 
-Upload `ios_dev.csr` at https://developer.apple.com/account/resources/certificates/add
-(type "Apple Development"), download the resulting `.cer`, then:
+1. On your Windows PC, install **AltServer** from https://altstore.io/ and
+   run it (it sits in the system tray). It needs iTunes / Apple Mobile
+   Device support installed (the installer handles this).
+2. Connect your iPhone via USB (or have it on the same Wi-Fi network) and
+   sign in with your Apple ID in AltServer's tray menu (Account →
+   "Sign in with Apple ID"). Use an **app-specific password** if you have
+   two-factor enabled (generate one at appleid.apple.com).
+3. From the tray icon, choose **Install AltStore** → select your device.
+   This installs the AltStore app on your iPhone (you'll need to trust the
+   developer profile once: Settings → General → VPN & Device Management).
 
-```sh
-openssl x509 -in ios_development.cer -inform DER -out ios_dev.pem -outform PEM
-openssl pkcs12 -export -inkey ios_dev.key -in ios_dev.pem -out ios_dev.p12 -passout pass:YOUR_P12_PASSWORD
-base64 -i ios_dev.p12 | pbcopy   # copy this for the GitHub secret below
-```
+### 3. Sideload OCHE
 
-### 2. Create a provisioning profile
+1. Unzip the downloaded artifact to get `OCHE.ipa`.
+2. Open **AltStore** on your iPhone → **My Apps** tab → tap **+** in the
+   top-left.
+3. If AltStore is running on your PC and connected, you can instead use
+   AltServer's tray menu → **Install** → choose your device → pick
+   `OCHE.ipa` directly (no need to transfer the file to the phone first).
+4. AltServer re-signs the IPA with a certificate from your free Apple ID and
+   installs it. OCHE should now appear on your home screen.
 
-1. Register your iPhone's UDID at
-   https://developer.apple.com/account/resources/devices/add
-   (Settings → General → About on the device, or via Finder/Xcode).
-2. Register an App ID `com.oche.app` at
-   https://developer.apple.com/account/resources/identifiers/add
-3. Create an **iOS App Development** provisioning profile at
-   https://developer.apple.com/account/resources/profiles/add, selecting the
-   `com.oche.app` ID, your certificate, and your device. Note the **profile
-   name** you give it — update `OCHE/ExportOptions.plist`'s
-   `provisioningProfiles` dict value to match it exactly.
-4. Download the `.mobileprovision` file and run:
-   ```sh
-   base64 -i OCHE_Development.mobileprovision | pbcopy
-   ```
+### Notes / limitations (free Apple ID)
 
-### 3. Add GitHub repo secrets
-
-In your GitHub repo: **Settings → Secrets and variables → Actions → New
-repository secret**:
-
-| Secret | Value |
-| --- | --- |
-| `IOS_DIST_CERT_P12_BASE64` | output of `base64 -i ios_dev.p12` |
-| `IOS_DIST_CERT_PASSWORD` | the password you set with `-passout` above |
-| `IOS_PROVISION_PROFILE_BASE64` | output of `base64 -i *.mobileprovision` |
-| `IOS_TEAM_ID` | your 10-character Apple Developer Team ID (developer.apple.com → Membership) |
-| `IOS_CODE_SIGN_IDENTITY` | `Apple Development: Your Name (XXXXXXXXXX)` — find via `security find-identity -v -p codesigning` on the Mac you used above |
-
-### 4. Run the workflow
-
-Push to `main`, or trigger manually from the **Actions** tab ("Build IPA" →
-"Run workflow"). When it finishes, download the `OCHE-ipa` artifact — it
-contains `OCHE.ipa`.
-
-### 5. Install the IPA on your device
-
-A development-signed IPA can be installed via:
-- Xcode (Window → Devices and Simulators → drag the `.ipa` onto your device), or
-- a sideloading tool such as [Sideloadly](https://sideloadly.io/) or
-  [AltStore](https://altstore.io/) using your Apple ID.
-
-It will only run on devices whose UDID was included in the provisioning
-profile (step 2), and you'll need to re-sign/re-install roughly every 7 days
-unless you have a paid Apple Developer Program membership.
+- Apps signed this way expire after **7 days**. AltStore can auto-refresh
+  them in the background as long as AltServer is running on your PC and your
+  phone is on the same Wi-Fi (or you can manually re-install via AltServer).
+- A free Apple ID can have at most **3 apps** signed this way at a time, and
+  apps are limited to **10 free provisioning-profile app IDs per 7 days**
+  across your whole account — shouldn't be an issue for just OCHE.
+- If you later get a paid Apple Developer Program membership ($99/yr), the
+  same `OCHE.ipa` workflow output can be re-signed with a real distribution
+  certificate for a year-long install (e.g. via Sideloadly), no workflow
+  changes needed.
 
 ## Project structure
 
