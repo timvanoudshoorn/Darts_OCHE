@@ -24,7 +24,8 @@ final class SoundManager {
     private init() {
         for effect in [SoundEffect.dartHit, .doubleHit, .tripleHit, .bullHit, .bust, .checkout, .turnAdvance, .buttonTap] {
             guard let url = Bundle.main.url(forResource: effect.rawValue, withExtension: "caf")
-                ?? Bundle.main.url(forResource: effect.rawValue, withExtension: "wav") else { continue }
+                ?? Bundle.main.url(forResource: effect.rawValue, withExtension: "wav")
+                ?? Bundle.main.url(forResource: effect.rawValue, withExtension: "mp3") else { continue }
             players[effect] = try? AVAudioPlayer(contentsOf: url)
             players[effect]?.prepareToPlay()
         }

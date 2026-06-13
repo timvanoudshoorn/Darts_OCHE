@@ -46,12 +46,7 @@ struct KillerGameView: View {
                     onQuit: { dismiss() }
                 )
 
-                if engine.phase == .assignment {
-                    Text("\(engine.currentPlayer.name): throw to claim your number")
-                        .font(OcheFont.body(14))
-                        .foregroundStyle(Theme.textSecondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
+                statusCard
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
@@ -84,6 +79,50 @@ struct KillerGameView: View {
         .screenFlash($flashColor, settings: settings)
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showSettings) { SettingsSheet() }
+    }
+
+    /// Status card describing what the current player needs to do.
+    private var statusCard: some View {
+        let p = engine.currentPlayerIndex
+        let text: String
+        let isKillerBanner: Bool
+
+        if engine.phase == .assignment {
+            text = "\(engine.currentPlayer.name): throw to claim your number"
+            isKillerBanner = false
+        } else if engine.isLive(p) {
+            text = "☠ \(engine.currentPlayer.name) is a Killer — hit a rival's number"
+            isKillerBanner = true
+        } else if let number = engine.assignedNumber(for: p) {
+            let remaining = max(0, 3 - engine.marks(for: p))
+            text = "\(engine.currentPlayer.name): hit \(number) — \(remaining) more to go live"
+            isKillerBanner = false
+        } else {
+            text = "\(engine.currentPlayer.name)'s turn"
+            isKillerBanner = false
+        }
+
+        return HStack(spacing: 8) {
+            if isKillerBanner {
+                Text("☠")
+                    .font(.system(size: 16, weight: .bold))
+            }
+            Text(text)
+                .font(OcheFont.body(14))
+                .foregroundStyle(isKillerBanner ? Theme.bust : Theme.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, isKillerBanner ? 10 : 0)
+        .padding(.horizontal, isKillerBanner ? 14 : 0)
+        .background(
+            Group {
+                if isKillerBanner {
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Theme.bust.opacity(0.12))
+                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.bust.opacity(0.5), lineWidth: 1.5))
+                }
+            }
+        )
     }
 
     private func cellState(_ dart: Dart) -> NumberPadCellState {
@@ -183,6 +222,8 @@ struct KillerCard: View {
     var isActive: Bool
     var accent: Color
 
+    private var isEliminated: Bool { lives == 0 }
+
     var body: some View {
         VStack(spacing: 6) {
             HStack {
@@ -193,6 +234,7 @@ struct KillerCard: View {
                     .font(OcheFont.label(13))
                     .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
                     .lineLimit(1)
+                    .strikethrough(isEliminated)
                 Spacer()
                 Image(systemName: isLive ? "skull.fill" : "heart.fill")
                     .foregroundStyle(isLive ? Theme.bust : accent)
@@ -210,6 +252,10 @@ struct KillerCard: View {
                             .frame(width: 8, height: 8)
                     }
                 }
+            } else {
+                Text("KILLER ☠")
+                    .font(OcheFont.label(11))
+                    .foregroundStyle(Theme.bust)
             }
 
             HStack(spacing: 4) {
@@ -227,10 +273,19 @@ struct KillerCard: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity)
+        .opacity(isEliminated ? 0.4 : 1.0)
         .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .strokeBorder(isActive ? accent.opacity(0.5) : Theme.stroke, lineWidth: isActive ? 2 : 1)
+            Group {
+                if isLive {
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(Theme.accentGradient, lineWidth: 2)
+                        .shadow(color: Theme.bust.opacity(0.5), radius: 8)
+                } else {
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(isActive ? accent.opacity(0.5) : Theme.stroke, lineWidth: isActive ? 2 : 1)
+                }
+            }
         )
     }
 }

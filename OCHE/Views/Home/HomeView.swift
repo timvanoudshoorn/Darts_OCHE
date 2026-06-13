@@ -20,7 +20,7 @@ struct HomeView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("OCHE")
                                     .font(OcheFont.scoreDisplay(56))
-                                    .foregroundStyle(Theme.textPrimary)
+                                    .foregroundStyle(Theme.accentGradient)
                                 Text("Pick a mode and start throwing.")
                                     .font(OcheFont.body(15))
                                     .foregroundStyle(Theme.textSecondary)
@@ -41,13 +41,9 @@ struct HomeView: View {
                         .padding(.top, 8)
 
                         Rectangle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Theme.woodLight, Theme.wood, Theme.woodDark],
-                                    startPoint: .leading, endPoint: .trailing
-                                )
-                            )
-                            .frame(height: 3)
+                            .fill(Theme.accentGradient)
+                            .frame(height: 2)
+                            .opacity(0.4)
                             .clipShape(RoundedRectangle(cornerRadius: 2))
                             .padding(.bottom, 8)
 

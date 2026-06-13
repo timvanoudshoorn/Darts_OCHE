@@ -158,9 +158,6 @@ struct SetupView: View {
         case .countUp:
             stepperRow("Rounds", value: $config.totalRounds, range: 1...20)
 
-        case .shanghai:
-            stepperRow("Rounds", value: $config.totalRounds, range: 1...20)
-
         case .killer:
             stepperRow("Lives", value: $config.startingLives, range: 1...10)
 

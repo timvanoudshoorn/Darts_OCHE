@@ -1,6 +1,6 @@
 # OCHE
 
-A free, native SwiftUI darts scoring app for iOS — 8 game modes, no account
+A free, native SwiftUI darts scoring app for iOS — 7 game modes, no account
 required, all data stored locally on-device with SwiftData.
 
 ## Game modes
@@ -10,7 +10,6 @@ required, all data stored locally on-device with SwiftData.
 - Cricket
 - Count-Up
 - Killer
-- Shanghai
 - Halve-It
 - 170 Practice (WDA drill)
 

@@ -14,7 +14,7 @@ struct GameLaunchConfig: Hashable, Codable {
     var multipliersCount: Bool = false
     var reverse: Bool = false
 
-    // Count-Up / Shanghai
+    // Count-Up
     var totalRounds: Int = 7
 
     // Killer

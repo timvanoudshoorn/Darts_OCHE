@@ -22,8 +22,6 @@ struct GameRouterView: View {
             CountUpGameView(config: config, engine: CountUpEngine(players: config.players, totalRounds: config.totalRounds))
         case .killer:
             KillerGameView(config: config, engine: KillerEngine(players: config.players, startingLives: config.startingLives))
-        case .shanghai:
-            ShanghaiGameView(config: config, engine: ShanghaiEngine(players: config.players, totalRounds: config.totalRounds))
         case .halveIt:
             HalveItGameView(config: config, engine: HalveItEngine(players: config.players))
         case .practice170:

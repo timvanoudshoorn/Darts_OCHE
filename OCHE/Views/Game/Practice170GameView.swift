@@ -48,9 +48,15 @@ struct Practice170GameView: View {
                 )
 
                 VStack(spacing: 8) {
+                    Text("SCORE REMAINING")
+                        .font(OcheFont.label(13))
+                        .foregroundStyle(Theme.textSecondary)
+
                     Text("\(engine.sharedScore)")
-                        .font(OcheFont.scoreDisplay(64))
-                        .foregroundStyle(Theme.scoreCardColor(forRemaining: engine.sharedScore))
+                        .font(OcheFont.scoreDisplay(72))
+                        .foregroundStyle(engine.sharedScore > 170 ? AnyShapeStyle(Theme.accentGradient) : AnyShapeStyle(Theme.scoreCardColor(forRemaining: engine.sharedScore)))
+                        .contentTransition(.numericText())
+                        .animation(.default, value: engine.sharedScore)
 
                     Text(engine.currentPlayer.name.uppercased())
                         .font(OcheFont.label(14))
@@ -63,7 +69,7 @@ struct Practice170GameView: View {
                                 .foregroundStyle(Theme.textTertiary)
                             Text(suggestion.labels.joined(separator: "  ·  "))
                                 .font(OcheFont.bodyBold(15))
-                                .foregroundStyle(Theme.scoreCheckout)
+                                .foregroundStyle(Theme.magenta)
                         }
                     }
                 }

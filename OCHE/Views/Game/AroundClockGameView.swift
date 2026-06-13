@@ -51,7 +51,7 @@ struct AroundClockGameView: View {
                         ForEach(engine.players.indices, id: \.self) { i in
                             ProgressCard(
                                 playerName: engine.players[i].name,
-                                targetLabel: targetLabel(for: i),
+                                targetLabel: shortTargetLabel(for: i),
                                 progress: engine.progress[i],
                                 total: engine.sequence.count,
                                 isActive: i == engine.currentPlayerIndex,
@@ -63,11 +63,27 @@ struct AroundClockGameView: View {
                     .padding(.vertical, 4)
                 }
 
+                Text(statusLabel)
+                    .font(OcheFont.heading(20))
+                    .foregroundStyle(Theme.accentGradient)
+
+                Dartboard(
+                    hits: engine.currentTurnDarts,
+                    completedSegments: completedSegments,
+                    targetSegment: engine.currentTarget(for: engine.currentPlayerIndex)
+                )
+                .frame(maxHeight: 220)
+                .padding(.vertical, 4)
+
                 DartsThisTurnView(darts: engine.currentTurnDarts, accent: accent)
 
                 Spacer(minLength: 0)
 
-                NumberPad(multiplier: $multiplier, accent: accent, stateFor: cellState, onThrow: handleThrow)
+                if engine.multipliersCount {
+                    NumberPad(multiplier: $multiplier, accent: accent, stateFor: cellState, onThrow: handleThrow)
+                } else {
+                    simplePad
+                }
             }
             .padding(16)
             .padding(.bottom, 8)
@@ -85,8 +101,66 @@ struct AroundClockGameView: View {
         return "Finished!"
     }
 
+    private func shortTargetLabel(for player: Int) -> String {
+        if let target = engine.currentTarget(for: player) {
+            return target == 25 ? "🎯" : "\(target)"
+        }
+        return "✓"
+    }
+
+    /// "Aim for: [number]" / "Aim for: BULL" status text for the active player.
+    private var statusLabel: String {
+        if let target = engine.currentTarget(for: engine.currentPlayerIndex) {
+            return target == 25 ? "AIM FOR: BULL" : "AIM FOR: \(target)"
+        }
+        return "FINISHED!"
+    }
+
+    /// Segments the active player has already completed, for the dartboard overlay.
+    private var completedSegments: Set<Int> {
+        let p = engine.currentPlayerIndex
+        let done = engine.progress[p]
+        guard done > 0 else { return [] }
+        return Set(engine.sequence[0..<done])
+    }
+
     private func cellState(_ dart: Dart) -> NumberPadCellState {
         engine.isOnTarget(dart) ? .target : .normal
+    }
+
+    /// Simplified Hit/Miss pad used when multipliers don't advance progress.
+    private var simplePad: some View {
+        HStack(spacing: 8) {
+            Button {
+                let target = engine.currentTarget(for: engine.currentPlayerIndex) ?? 0
+                handleThrow(Dart(value: target, multiplier: .single))
+            } label: {
+                Text("HIT ✓")
+                    .font(OcheFont.button(26))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 22)
+                    .background(RoundedRectangle(cornerRadius: 16).fill(Theme.green.opacity(0.22)))
+                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.green, lineWidth: 2))
+                    .foregroundStyle(Theme.green)
+            }
+            .buttonStyle(SquashButtonStyle())
+            .frame(maxWidth: .infinity)
+            .layoutPriority(2)
+
+            Button {
+                handleThrow(Dart.miss)
+            } label: {
+                Text("MISS")
+                    .font(OcheFont.button(22))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 22)
+                    .background(RoundedRectangle(cornerRadius: 16).fill(Theme.surfaceElevated))
+                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.stroke, lineWidth: 1))
+                    .foregroundStyle(Theme.textSecondary)
+            }
+            .buttonStyle(SquashButtonStyle())
+            .frame(maxWidth: .infinity)
+        }
     }
 
     private func handleThrow(_ dart: Dart) {

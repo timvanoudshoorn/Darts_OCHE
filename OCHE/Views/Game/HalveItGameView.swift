@@ -38,7 +38,7 @@ struct HalveItGameView: View {
 
             VStack(spacing: 16) {
                 GameTopBar(
-                    title: "Target: \(engine.currentTarget.label)",
+                    title: "Halve-It",
                     accent: accent,
                     canUndo: engine.canUndo,
                     onUndo: { engine.undo() },
@@ -46,25 +46,45 @@ struct HalveItGameView: View {
                     onQuit: { dismiss() }
                 )
 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(engine.players.indices, id: \.self) { i in
-                            TotalScoreCard(
-                                playerName: engine.players[i].name,
-                                total: engine.scores[i],
-                                isActive: i == engine.currentPlayerIndex,
-                                accent: accent
-                            )
-                            .frame(width: 180)
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
+                VStack(spacing: 4) {
+                    Text("ROUND \(min(engine.currentRound + 1, engine.targets.count)) OF \(engine.targets.count) · TARGET")
+                        .font(OcheFont.label(13))
+                        .foregroundStyle(Theme.textSecondary)
 
-                Text("Round \(min(engine.currentRound + 1, engine.targets.count)) of \(engine.targets.count) — score on \(engine.currentTarget.label) or your total is halved")
-                    .font(OcheFont.body(12))
-                    .foregroundStyle(Theme.textSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    Text(engine.currentTarget.label.uppercased())
+                        .font(OcheFont.scoreDisplay(64))
+                        .foregroundStyle(Theme.modeHalveIt)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+
+                    if hitThisTurn {
+                        Text("✓ HIT! KEEP SCORING")
+                            .font(OcheFont.label(13))
+                            .foregroundStyle(Theme.green)
+                    } else {
+                        Text("⚠ MISS ALL 3 → SCORE HALVES")
+                            .font(OcheFont.label(13))
+                            .foregroundStyle(Theme.modeHalveIt)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+
+                if engine.players.count > 1 {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(engine.players.indices, id: \.self) { i in
+                                TotalScoreCard(
+                                    playerName: engine.players[i].name,
+                                    total: engine.scores[i],
+                                    isActive: i == engine.currentPlayerIndex,
+                                    accent: accent
+                                )
+                                .frame(width: 140)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
 
                 DartsThisTurnView(darts: engine.currentTurnDarts, accent: accent)
 
@@ -79,6 +99,11 @@ struct HalveItGameView: View {
         .screenFlash($flashColor, settings: settings)
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showSettings) { SettingsSheet() }
+    }
+
+    /// Whether any dart thrown so far this turn matches the current target.
+    private var hitThisTurn: Bool {
+        engine.currentTurnDarts.contains { cellState($0) == .target }
     }
 
     private func cellState(_ dart: Dart) -> NumberPadCellState {

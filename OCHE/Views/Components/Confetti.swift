@@ -6,7 +6,7 @@ import SwiftUI
 struct ConfettiBurst: View {
     private static let colors: [Color] = [
         Theme.scoreCheckout, Theme.glowSky, Theme.glowPink, Theme.glowViolet,
-        Theme.modeCountUp, Theme.modeCricket, Theme.woodLight
+        Theme.modeCountUp, Theme.modeCricket, Theme.amber
     ]
 
     private struct Piece: Identifiable {

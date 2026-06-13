@@ -48,6 +48,14 @@ struct CricketGameView: View {
 
                 CricketBoard(engine: engine, accent: accent)
 
+                HStack(spacing: 8) {
+                    Circle().fill(accent).frame(width: 8, height: 8)
+                    Text("\(engine.currentPlayer.name.uppercased())'S TURN")
+                        .font(OcheFont.label(13))
+                        .foregroundStyle(Theme.textSecondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
                 DartsThisTurnView(darts: engine.currentTurnDarts, accent: accent)
 
                 Spacer(minLength: 0)
@@ -120,15 +128,19 @@ struct CricketBoard: View {
                 Text("")
                     .frame(width: 44)
                 ForEach(engine.players.indices, id: \.self) { i in
+                    let isActive = i == engine.currentPlayerIndex
                     VStack(spacing: 2) {
                         Text(engine.players[i].name.uppercased())
                             .font(OcheFont.label(11))
-                            .foregroundStyle(i == engine.currentPlayerIndex ? accent : Theme.textSecondary)
+                            .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
                         Text("\(engine.scores[i])")
                             .font(OcheFont.heading(20))
-                            .foregroundStyle(Theme.textPrimary)
+                            .foregroundStyle(isActive ? AnyShapeStyle(Theme.accentGradient) : AnyShapeStyle(Theme.textPrimary))
+                        RoundedRectangle(cornerRadius: 1)
+                            .fill(isActive ? AnyShapeStyle(Theme.accentGradient) : AnyShapeStyle(Color.clear))
+                            .frame(height: 2)
                     }
                     .frame(maxWidth: .infinity)
                 }

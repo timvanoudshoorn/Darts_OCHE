@@ -7,7 +7,6 @@ enum GameMode: String, CaseIterable, Identifiable, Codable {
     case cricket
     case countUp
     case killer
-    case shanghai
     case halveIt
     case practice170
 
@@ -20,7 +19,6 @@ enum GameMode: String, CaseIterable, Identifiable, Codable {
         case .cricket: return "Cricket"
         case .countUp: return "Count-Up"
         case .killer: return "Killer"
-        case .shanghai: return "Shanghai"
         case .halveIt: return "Halve-It"
         case .practice170: return "170 Practice"
         }
@@ -33,7 +31,6 @@ enum GameMode: String, CaseIterable, Identifiable, Codable {
         case .cricket: return "15-20 + Bull, close & score"
         case .countUp: return "Highest score over N rounds"
         case .killer: return "Last player standing"
-        case .shanghai: return "Single, double, triple — instant win"
         case .halveIt: return "Hit the target or lose half"
         case .practice170: return "WDA team checkout drill"
         }
@@ -46,7 +43,6 @@ enum GameMode: String, CaseIterable, Identifiable, Codable {
         case .cricket: return Theme.modeCricket
         case .countUp: return Theme.modeCountUp
         case .killer: return Theme.modeKiller
-        case .shanghai: return Theme.modeShanghai
         case .halveIt: return Theme.modeHalveIt
         case .practice170: return Theme.modePractice170
         }
@@ -59,7 +55,6 @@ enum GameMode: String, CaseIterable, Identifiable, Codable {
         case .cricket: return "ladybug.fill"
         case .countUp: return "arrow.up.right.circle.fill"
         case .killer: return "bolt.heart.fill"
-        case .shanghai: return "tram.fill"
         case .halveIt: return "divide.circle.fill"
         case .practice170: return "graduationcap.fill"
         }

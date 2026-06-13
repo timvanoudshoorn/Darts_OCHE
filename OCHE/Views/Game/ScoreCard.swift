@@ -12,9 +12,16 @@ struct ScoreCard: View {
 
     @State private var bustShake: CGFloat = 0
     @State private var slamScale: CGFloat = 1.0
+    @State private var ringPulse = false
 
     private var color: Color { Theme.scoreCardColor(forRemaining: remaining) }
     private var isCheckoutRange: Bool { remaining <= 40 && remaining > 0 }
+
+    /// Big score numbers use the signature cyan→violet gradient while in the
+    /// "high" range; lower ranges keep their semantic warning colors.
+    private var scoreStyle: AnyShapeStyle {
+        remaining > 170 ? AnyShapeStyle(Theme.accentGradient) : AnyShapeStyle(color)
+    }
 
     var body: some View {
         VStack(spacing: 6) {
@@ -41,7 +48,7 @@ struct ScoreCard: View {
 
             Text("\(remaining)")
                 .font(OcheFont.scoreDisplay(isActive ? 84 : 56))
-                .foregroundStyle(color)
+                .foregroundStyle(scoreStyle)
                 .contentTransition(.numericText())
                 .scaleEffect(slamScale)
                 .offset(x: bustShake)
@@ -61,10 +68,31 @@ struct ScoreCard: View {
         )
         .woodFrame(cornerRadius: 20, lineWidth: 1.5)
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .strokeBorder(isActive ? accent.opacity(0.6) : .clear, lineWidth: 2)
+            Group {
+                if isActive {
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(Theme.accentGradient, lineWidth: 2)
+                        .opacity(ringPulse ? 1.0 : 0.55)
+                }
+            }
         )
         .shadow(color: isActive ? accent.opacity(0.25) : .clear, radius: 16)
+        .onAppear {
+            if isActive {
+                withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
+                    ringPulse = true
+                }
+            }
+        }
+        .onChange(of: isActive) { active in
+            if active {
+                withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
+                    ringPulse = true
+                }
+            } else {
+                ringPulse = false
+            }
+        }
         .onChange(of: remaining) { _ in
             withAnimation(.spring(response: 0.25, dampingFraction: 0.4)) {
                 slamScale = 1.06

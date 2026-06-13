@@ -10,6 +10,13 @@ struct Dartboard: View {
     var hits: [Dart] = []
     var flashDart: Dart? = nil
 
+    /// Around the Clock: segments already completed by the active player,
+    /// dimmed/highlighted in green. `25` represents Bull.
+    var completedSegments: Set<Int> = []
+    /// Around the Clock: the active player's current target — highlighted
+    /// with a gold ring. `25` represents Bull.
+    var targetSegment: Int? = nil
+
     /// Standard board order, clockwise starting from the top (12 o'clock).
     static let segmentOrder = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5]
 
@@ -31,6 +38,7 @@ struct Dartboard: View {
             ZStack {
                 Canvas { context, _ in
                     drawBoard(context: context, center: center, r: r)
+                    drawAroundClockOverlays(context: context, center: center, r: r)
                 }
 
                 ForEach(Array(Self.segmentOrder.enumerated()), id: \.offset) { index, value in
@@ -59,7 +67,7 @@ struct Dartboard: View {
 
     private func drawBoard(context: GraphicsContext, center: CGPoint, r: CGFloat) {
         // Wooden surround + black wire rim.
-        context.fill(Path(ellipseIn: rect(center: center, radius: r)), with: .color(Theme.woodDark))
+        context.fill(Path(ellipseIn: rect(center: center, radius: r)), with: .color(Theme.surfaceElevated))
         context.fill(Path(ellipseIn: rect(center: center, radius: r * rimOuter)), with: .color(.black))
 
         for index in 0..<20 {
@@ -84,6 +92,32 @@ struct Dartboard: View {
             divider.move(to: point(center: center, radius: r * bullOuter, angle: a))
             divider.addLine(to: point(center: center, radius: r * doubleOuter, angle: a))
             context.stroke(divider, with: .color(.black.opacity(0.55)), lineWidth: max(0.5, r * 0.004))
+        }
+    }
+
+    /// Draws Around the Clock highlight overlays: completed segments tinted
+    /// green, and the active target ringed in gold (Theme.amber).
+    private func drawAroundClockOverlays(context: GraphicsContext, center: CGPoint, r: CGFloat) {
+        for value in completedSegments where value != 25 {
+            guard let index = Self.segmentOrder.firstIndex(of: value) else { continue }
+            let start = angle(for: index, offsetDeg: -9)
+            let end = angle(for: index, offsetDeg: 9)
+            context.fill(wedge(center: center, innerR: r * bullOuter, outerR: r * doubleOuter, start: start, end: end), with: .color(Theme.green.opacity(0.35)))
+        }
+
+        if let target = targetSegment, target != 25, let index = Self.segmentOrder.firstIndex(of: target) {
+            let start = angle(for: index, offsetDeg: -9)
+            let end = angle(for: index, offsetDeg: 9)
+            let path = wedge(center: center, innerR: r * bullOuter, outerR: r * doubleOuter, start: start, end: end)
+            context.stroke(path, with: .color(Theme.amber), lineWidth: max(2, r * 0.02))
+        }
+
+        if targetSegment == 25 {
+            context.stroke(Path(ellipseIn: rect(center: center, radius: r * tripleInner)), with: .color(Theme.amber), lineWidth: max(2, r * 0.02))
+        }
+
+        if completedSegments.contains(25) {
+            context.fill(Path(ellipseIn: rect(center: center, radius: r * bullOuter)), with: .color(Theme.green.opacity(0.35)))
         }
     }
 

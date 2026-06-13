@@ -6,14 +6,20 @@ import SwiftUI
 struct PopupCard: View {
     let event: PopupEvent
 
+    @State private var bounce = false
+
+    /// Checkouts and game-overs get the signature gradient treatment;
+    /// everything else keeps its semantic color for clarity.
+    private var isCelebration: Bool { event.kind == .checkout }
+
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: event.icon)
                 .font(.system(size: 36, weight: .bold))
-                .foregroundStyle(event.color)
+                .foregroundStyle(isCelebration ? AnyShapeStyle(Theme.accentGradient) : AnyShapeStyle(event.color))
             Text(event.title.uppercased())
                 .font(OcheFont.heading(24))
-                .foregroundStyle(Theme.textPrimary)
+                .foregroundStyle(isCelebration ? AnyShapeStyle(Theme.accentGradient) : AnyShapeStyle(Theme.textPrimary))
             if let subtitle = event.subtitle {
                 Text(subtitle)
                     .font(OcheFont.body(14))
@@ -24,10 +30,27 @@ struct PopupCard: View {
         .padding(.vertical, 20)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24))
         .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .strokeBorder(event.color.opacity(0.45), lineWidth: 1.5)
+            Group {
+                if isCelebration {
+                    RoundedRectangle(cornerRadius: 24)
+                        .strokeBorder(Theme.accentGradient, lineWidth: 2)
+                } else {
+                    RoundedRectangle(cornerRadius: 24)
+                        .strokeBorder(event.color.opacity(0.45), lineWidth: 1.5)
+                }
+            }
         )
         .shadow(color: event.color.opacity(0.3), radius: 20)
+        .scaleEffect(bounce ? 1.0 : 0.7)
+        .onAppear {
+            if isCelebration {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
+                    bounce = true
+                }
+            } else {
+                bounce = true
+            }
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(event.title)\(event.subtitle.map { ", " + $0 } ?? "")")
     }

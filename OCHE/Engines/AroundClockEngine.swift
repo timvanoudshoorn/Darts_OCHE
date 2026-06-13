@@ -62,6 +62,7 @@ final class AroundClockEngine: GameEngineBase<AroundClockState> {
     }
 
     var players: [GamePlayer] { current.players }
+    var multipliersCount: Bool { current.multipliersCount }
     var sequence: [Int] { current.sequence }
     var progress: [Int] { current.progress }
     var currentPlayerIndex: Int { current.currentPlayerIndex }

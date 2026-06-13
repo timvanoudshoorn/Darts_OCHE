@@ -65,17 +65,27 @@ struct X01GameView: View {
                     .padding(.vertical, 4)
                 }
 
-                if let suggestion = engine.checkoutSuggestion {
-                    HStack(spacing: 6) {
-                        Text("CHECKOUT:")
-                            .font(OcheFont.label(12))
-                            .foregroundStyle(Theme.textTertiary)
-                        Text(suggestion.labels.joined(separator: "  ·  "))
-                            .font(OcheFont.bodyBold(15))
-                            .foregroundStyle(Theme.scoreCheckout)
+                HStack(spacing: 12) {
+                    if let suggestion = engine.checkoutSuggestion {
+                        HStack(spacing: 6) {
+                            Text("CHECKOUT:")
+                                .font(OcheFont.label(12))
+                                .foregroundStyle(Theme.textTertiary)
+                            Text(suggestion.labels.joined(separator: "  ·  "))
+                                .font(OcheFont.bodyBold(15))
+                                .foregroundStyle(Theme.scoreCheckout)
+                        }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Spacer(minLength: 0)
+
+                    if turnTotal > 0 {
+                        Text("+\(turnTotal) THIS TURN")
+                            .font(OcheFont.label(12))
+                            .foregroundStyle(Theme.amber)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Dartboard(hits: engine.currentTurnDarts, flashDart: flashDart)
                     .frame(maxHeight: 220)
@@ -98,6 +108,10 @@ struct X01GameView: View {
         .screenFlash($flashColor, settings: settings)
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showSettings) { SettingsSheet() }
+    }
+
+    private var turnTotal: Int {
+        engine.currentTurnDarts.map(\.points).reduce(0, +)
     }
 
     private func cellState(_ dart: Dart) -> NumberPadCellState {
