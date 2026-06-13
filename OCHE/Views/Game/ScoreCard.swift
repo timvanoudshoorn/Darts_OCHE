@@ -33,6 +33,12 @@ struct ScoreCard: View {
                 }
             }
 
+            VStack(spacing: 2) {
+                Rectangle().fill(Theme.textTertiary).frame(height: 1)
+                Rectangle().fill(Theme.textTertiary).frame(height: 1)
+            }
+            .opacity(0.5)
+
             Text("\(remaining)")
                 .font(OcheFont.scoreDisplay(isActive ? 84 : 56))
                 .foregroundStyle(color)
@@ -53,9 +59,10 @@ struct ScoreCard: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill(Theme.surface)
         )
+        .woodFrame(cornerRadius: 20, lineWidth: 1.5)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .strokeBorder(isActive ? accent.opacity(0.5) : Theme.stroke, lineWidth: isActive ? 2 : 1)
+                .strokeBorder(isActive ? accent.opacity(0.6) : .clear, lineWidth: 2)
         )
         .shadow(color: isActive ? accent.opacity(0.25) : .clear, radius: 16)
         .onChange(of: remaining) { _ in

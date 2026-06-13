@@ -18,6 +18,7 @@ struct GameTopBar: View {
                     .font(.system(size: 16, weight: .bold))
                     .frame(width: 40, height: 40)
                     .background(Circle().fill(Theme.surface))
+                    .overlay(Circle().strokeBorder(Theme.wood.opacity(0.6), lineWidth: 1.5))
                     .foregroundStyle(Theme.textSecondary)
             }
             .accessibilityLabel("Quit match")
@@ -34,6 +35,7 @@ struct GameTopBar: View {
                     .font(.system(size: 16, weight: .bold))
                     .frame(width: 40, height: 40)
                     .background(Circle().fill(Theme.surface))
+                    .overlay(Circle().strokeBorder(Theme.wood.opacity(0.6), lineWidth: 1.5))
                     .foregroundStyle(canUndo ? Theme.textPrimary : Theme.textTertiary)
             }
             .disabled(!canUndo)
@@ -44,6 +46,7 @@ struct GameTopBar: View {
                     .font(.system(size: 16, weight: .bold))
                     .frame(width: 40, height: 40)
                     .background(Circle().fill(Theme.surface))
+                    .overlay(Circle().strokeBorder(Theme.wood.opacity(0.6), lineWidth: 1.5))
                     .foregroundStyle(Theme.textSecondary)
             }
             .accessibilityLabel("Settings")

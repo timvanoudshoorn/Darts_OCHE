@@ -22,6 +22,17 @@ struct HomeView: View {
                             Text("Pick a mode and start throwing.")
                                 .font(OcheFont.body(15))
                                 .foregroundStyle(Theme.textSecondary)
+
+                            Rectangle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Theme.woodLight, Theme.wood, Theme.woodDark],
+                                        startPoint: .leading, endPoint: .trailing
+                                    )
+                                )
+                                .frame(height: 3)
+                                .clipShape(RoundedRectangle(cornerRadius: 2))
+                                .padding(.top, 8)
                         }
                         .padding(.top, 8)
                         .padding(.bottom, 8)

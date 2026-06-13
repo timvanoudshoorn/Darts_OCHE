@@ -7,14 +7,7 @@ struct ModeCard: View {
 
     var body: some View {
         HStack(spacing: 16) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(mode.accentColor.opacity(0.16))
-                Image(systemName: mode.icon)
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundStyle(mode.accentColor)
-            }
-            .frame(width: 52, height: 52)
+            DartboardBadge(icon: mode.icon, accent: mode.accentColor)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(mode.title.uppercased())
@@ -36,10 +29,7 @@ struct ModeCard: View {
             RoundedRectangle(cornerRadius: 18)
                 .fill(Theme.surface)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .strokeBorder(Theme.stroke, lineWidth: 1)
-        )
+        .woodFrame(cornerRadius: 18, lineWidth: 1.5)
         .overlay(
             RoundedRectangle(cornerRadius: 18)
                 .fill(mode.accentColor)
