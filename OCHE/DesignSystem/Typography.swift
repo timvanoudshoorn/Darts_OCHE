@@ -1,29 +1,29 @@
 import SwiftUI
 
-/// Type ramp built around iOS's built-in "Chalkboard SE" and "Marker Felt"
-/// fonts — these ship with every iOS device, so headings, scoreboard
-/// numbers, and button labels get a genuine hand-chalked / marker-board feel
-/// with no font files to bundle. Body copy uses the rounded system font for
-/// readability, and everything degrades gracefully on Dynamic Type.
+/// Type ramp built on the system font in its **condensed** width and heavy
+/// weights — a bold, digital sports-scoreboard look (think LED scoreboards
+/// and broadcast graphics) with zero bundled font files. Body copy uses the
+/// rounded system font for readability, and everything degrades gracefully
+/// on Dynamic Type.
 enum OcheFont {
     /// Big scoreboard numbers (remaining score, totals).
     static func scoreDisplay(_ size: CGFloat = 96) -> Font {
-        .custom("ChalkboardSE-Bold", size: size, relativeTo: .largeTitle)
+        .system(size: size, weight: .black, design: .default).width(.condensed)
     }
 
     /// Section headings, mode titles.
     static func heading(_ size: CGFloat = 28) -> Font {
-        .custom("ChalkboardSE-Bold", size: size, relativeTo: .title)
+        .system(size: size, weight: .heavy, design: .default).width(.condensed)
     }
 
     /// Number pad buttons.
     static func button(_ size: CGFloat = 30) -> Font {
-        .custom("ChalkboardSE-Bold", size: size, relativeTo: .title3)
+        .system(size: size, weight: .bold, design: .default).width(.condensed)
     }
 
     /// Small uppercase labels / eyebrow text.
     static func label(_ size: CGFloat = 13) -> Font {
-        .custom("ChalkboardSE-Regular", size: size, relativeTo: .caption)
+        .system(size: size, weight: .bold, design: .default).width(.condensed)
     }
 
     /// Body copy uses the rounded system font for readability.

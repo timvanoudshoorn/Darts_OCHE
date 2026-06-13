@@ -4,6 +4,7 @@ import SwiftUI
 /// Navigation destinations for the single root `NavigationStack`.
 enum Route: Hashable, Codable {
     case setup(GameMode)
+    case bullThrow(GameMode, GameLaunchConfig)
     case play(GameMode, GameLaunchConfig)
 }
 

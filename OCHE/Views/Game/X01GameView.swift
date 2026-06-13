@@ -12,6 +12,8 @@ struct X01GameView: View {
     @State private var flashColor: Color? = nil
     @State private var showSettings = false
     @State private var showGameOver = false
+    @State private var flashDart: Dart? = nil
+    @State private var showConfetti = false
 
     private let accent = GameMode.standard.accentColor
 
@@ -75,6 +77,10 @@ struct X01GameView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
+                Dartboard(hits: engine.currentTurnDarts, flashDart: flashDart)
+                    .frame(maxHeight: 220)
+                    .padding(.vertical, 4)
+
                 DartsThisTurnView(darts: engine.currentTurnDarts, accent: accent)
 
                 Spacer(minLength: 0)
@@ -83,6 +89,10 @@ struct X01GameView: View {
             }
             .padding(16)
             .padding(.bottom, 8)
+
+            if showConfetti {
+                ConfettiBurst()
+            }
         }
         .popupOverlay($popup, settings: settings)
         .screenFlash($flashColor, settings: settings)
@@ -103,6 +113,7 @@ struct X01GameView: View {
     private func handleThrow(_ dart: Dart) {
         let playerName = engine.currentPlayer.name
         let outcome = engine.throwDart(dart)
+        flashDart = dart
 
         switch outcome {
         case .bust:
@@ -116,6 +127,7 @@ struct X01GameView: View {
             flashColor = Theme.scoreCheckout
             HapticManager.shared.checkout()
             SoundManager.shared.play(.checkout)
+            withAnimation { showConfetti = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 showGameOver = true
             }

@@ -7,6 +7,7 @@ struct SetupView: View {
     @EnvironmentObject private var router: AppRouter
     @State private var playerNames: [String]
     @State private var config = GameLaunchConfig()
+    @State private var throwForBull = false
 
     init(mode: GameMode) {
         self.mode = mode
@@ -36,9 +37,17 @@ struct SetupView: View {
                     playersSection
                     optionsSection
 
+                    if playerNames.count > 1 {
+                        bullThrowSection
+                    }
+
                     Button {
                         config.players = playerNames.map { GamePlayer(name: $0.isEmpty ? "Player" : $0) }
-                        router.path.append(Route.play(mode, config))
+                        if throwForBull {
+                            router.path.append(Route.bullThrow(mode, config))
+                        } else {
+                            router.path.append(Route.play(mode, config))
+                        }
                     } label: {
                         Text("START")
                             .font(OcheFont.heading(22))
@@ -108,6 +117,19 @@ struct SetupView: View {
                 }
                 .buttonStyle(SquashButtonStyle())
             }
+        }
+    }
+
+    // MARK: Throw for the bull
+
+    private var bullThrowSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("Throw Order")
+            toggleRow(
+                "Throw for the Bull",
+                isOn: $throwForBull,
+                subtitle: "Each player throws one dart at the bull — closest goes first"
+            )
         }
     }
 
