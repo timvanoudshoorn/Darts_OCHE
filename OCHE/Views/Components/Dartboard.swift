@@ -94,7 +94,7 @@ struct Dartboard: View {
     }
 
     private func point(center: CGPoint, radius: CGFloat, angle: Angle) -> CGPoint {
-        CGPoint(x: center.x + radius * cos(angle.radians), y: center.y + radius * sin(angle.radians))
+        CGPoint(x: center.x + radius * CGFloat(cos(angle.radians)), y: center.y + radius * CGFloat(sin(angle.radians)))
     }
 
     private func rect(center: CGPoint, radius: CGFloat) -> CGRect {
@@ -127,7 +127,7 @@ private struct WedgeShape: Shape {
         let end = Angle.degrees(-90 + Double(index) * 18 + 9)
 
         func pt(_ radius: CGFloat, _ angle: Angle) -> CGPoint {
-            CGPoint(x: center.x + radius * cos(angle.radians), y: center.y + radius * sin(angle.radians))
+            CGPoint(x: center.x + radius * CGFloat(cos(angle.radians)), y: center.y + radius * CGFloat(sin(angle.radians)))
         }
 
         var path = Path()
@@ -211,13 +211,13 @@ struct DartMarker: View {
         if dart.isMiss {
             let angle = Angle.degrees(Double.random(in: 0..<360, using: &rng))
             let radius = r * 0.97
-            return CGPoint(x: center.x + radius * cos(angle.radians), y: center.y + radius * sin(angle.radians))
+            return CGPoint(x: center.x + radius * CGFloat(cos(angle.radians)), y: center.y + radius * CGFloat(sin(angle.radians)))
         }
 
         if dart.isBull {
             let radius = r * (dart.multiplier == .double ? 0.03 : 0.085)
             let angle = Angle.degrees(Double.random(in: 0..<360, using: &rng))
-            return CGPoint(x: center.x + radius * cos(angle.radians), y: center.y + radius * sin(angle.radians))
+            return CGPoint(x: center.x + radius * CGFloat(cos(angle.radians)), y: center.y + radius * CGFloat(sin(angle.radians)))
         }
 
         let index = Dartboard.segmentOrder.firstIndex(of: dart.value) ?? 0
@@ -233,6 +233,6 @@ struct DartMarker: View {
 
         let angle = Angle.degrees(angleDeg)
         let radius = r * radiusFrac
-        return CGPoint(x: center.x + radius * cos(angle.radians), y: center.y + radius * sin(angle.radians))
+        return CGPoint(x: center.x + radius * CGFloat(cos(angle.radians)), y: center.y + radius * CGFloat(sin(angle.radians)))
     }
 }

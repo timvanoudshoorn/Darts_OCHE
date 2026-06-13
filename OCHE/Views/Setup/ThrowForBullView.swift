@@ -163,7 +163,7 @@ struct ThrowForBullView: View {
         // distance from center at evenly-spaced angles for legibility.
         let angle = Angle.degrees(-90 + Double(index) * (360.0 / Double(max(players.count, 1))))
         let radius = distance * r
-        return CGPoint(x: center.x + radius * cos(angle.radians), y: center.y + radius * sin(angle.radians))
+        return CGPoint(x: center.x + radius * CGFloat(cos(angle.radians)), y: center.y + radius * CGFloat(sin(angle.radians)))
     }
 }
 
