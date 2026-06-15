@@ -23,6 +23,7 @@ struct GameOverView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var router: AppRouter
     @State private var saved = false
+    @State private var revealed = false
 
     private var stats: [MatchStatistics] {
         players.indices.map { MatchStatistics.compute(from: dartLog, playerIndex: $0) }
@@ -36,15 +37,21 @@ struct GameOverView: View {
                 VStack(spacing: 20) {
                     VStack(spacing: 8) {
                         Image(systemName: "trophy.fill")
-                            .font(.system(size: 44))
-                            .foregroundStyle(Theme.scoreCheckout)
-                        Text("Game Over")
+                            .font(.system(size: 52))
+                            .foregroundStyle(Theme.accentGradient)
+                            .shadow(color: Theme.cyan.opacity(0.4), radius: 16)
+                            .scaleEffect(revealed ? 1 : 0.4)
+                            .rotationEffect(.degrees(revealed ? 0 : -18))
+                        Text(winnerIndex == nil ? "Session Complete" : "Winner")
                             .font(OcheFont.label(14))
                             .foregroundStyle(Theme.textSecondary)
+                            .tracking(2)
                         if let winnerIndex {
                             Text(players[winnerIndex].name.uppercased())
-                                .font(OcheFont.scoreDisplay(48))
-                                .foregroundStyle(Theme.textPrimary)
+                                .font(OcheFont.scoreDisplay(52))
+                                .foregroundStyle(Theme.accentGradient)
+                                .scaleEffect(revealed ? 1 : 0.7)
+                                .opacity(revealed ? 1 : 0)
                             if let winnerNote {
                                 Text(winnerNote)
                                     .font(OcheFont.body(14))
@@ -88,9 +95,19 @@ struct GameOverView: View {
                 }
                 .padding(20)
             }
+
+            if winnerIndex != nil {
+                ConfettiBurst()
+                    .allowsHitTesting(false)
+            }
         }
         .navigationBarBackButtonHidden(true)
-        .onAppear { saveResult() }
+        .onAppear {
+            saveResult()
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.55)) {
+                revealed = true
+            }
+        }
     }
 
     private func defaultPlayAgain() {

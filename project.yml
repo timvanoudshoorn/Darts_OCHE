@@ -10,6 +10,10 @@ settings:
     DEVELOPMENT_TEAM: ""
     GENERATE_INFOPLIST_FILE: YES
     CODE_SIGN_STYLE: Automatic
+    # Bump these on every meaningful change so AltStore/iOS treats a fresh
+    # IPA as an update instead of skipping the (re)install.
+    MARKETING_VERSION: "2.0"
+    CURRENT_PROJECT_VERSION: "3"
 
 targets:
   OCHE:
