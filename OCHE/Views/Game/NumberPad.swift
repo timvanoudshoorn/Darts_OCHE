@@ -124,7 +124,14 @@ struct NumberPadButton: View {
         } label: {
             ZStack {
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(backgroundFill)
+                    .fill(
+                        LinearGradient(
+                            colors: [Theme.surfaceElevated, Theme.surface],
+                            startPoint: .top, endPoint: .bottom
+                        )
+                    )
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(stateTint)
                 RoundedRectangle(cornerRadius: 16)
                     .strokeBorder(borderColor, lineWidth: borderWidth)
 
@@ -153,6 +160,7 @@ struct NumberPadButton: View {
                 }
             }
             .frame(height: 56)
+            .shadow(color: .black.opacity(0.35), radius: 4, y: 2)
         }
         .buttonStyle(SquashButtonStyle())
         .scaleEffect(state == .checkout && pulse ? 1.06 : 1.0)
@@ -170,13 +178,13 @@ struct NumberPadButton: View {
         .accessibilityLabel(accessibilityLabel)
     }
 
-    private var backgroundFill: Color {
+    private var stateTint: Color {
         switch state {
         case .checkout: return baseColor.opacity(0.30)
         case .bust: return Theme.bust.opacity(0.12)
         case .near: return Theme.near.opacity(0.16)
         case .target: return accent.opacity(0.18)
-        case .normal: return Theme.surfaceElevated
+        case .normal: return .clear
         }
     }
 

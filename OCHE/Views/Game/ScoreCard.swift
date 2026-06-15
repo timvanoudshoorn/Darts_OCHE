@@ -64,7 +64,12 @@ struct ScoreCard: View {
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Theme.surface)
+                .fill(
+                    LinearGradient(
+                        colors: [Theme.surfaceElevated, Theme.surface],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                )
         )
         .woodFrame(cornerRadius: 20, lineWidth: 1.5)
         .overlay(
