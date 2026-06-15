@@ -1,38 +1,44 @@
 import SwiftUI
 
-/// Type ramp built on the system font in its **condensed** width and heavy
-/// weights — a bold, digital sports-scoreboard look (think LED scoreboards
-/// and broadcast graphics) with zero bundled font files. Body copy uses the
-/// rounded system font for readability, and everything degrades gracefully
-/// on Dynamic Type.
+/// Type ramp built on **Rajdhani** — a condensed, geometric sports/esports
+/// typeface (think broadcast scoreboards and gaming HUDs). Bundled as static
+/// weights and registered at launch by `FontLoader`, so these faces resolve by
+/// PostScript name. If a face ever fails to load, SwiftUI falls back to the
+/// system font gracefully.
 enum OcheFont {
+    // PostScript names of the bundled Rajdhani faces.
+    private static let bold = "Rajdhani-Bold"
+    private static let semibold = "Rajdhani-SemiBold"
+    private static let medium = "Rajdhani-Medium"
+    private static let regular = "Rajdhani-Regular"
+
     /// Big scoreboard numbers (remaining score, totals).
     static func scoreDisplay(_ size: CGFloat = 96) -> Font {
-        .system(size: size, weight: .black, design: .default).width(.condensed)
+        .custom(bold, size: size)
     }
 
     /// Section headings, mode titles.
     static func heading(_ size: CGFloat = 28) -> Font {
-        .system(size: size, weight: .heavy, design: .default).width(.condensed)
+        .custom(semibold, size: size)
     }
 
     /// Number pad buttons.
     static func button(_ size: CGFloat = 30) -> Font {
-        .system(size: size, weight: .bold, design: .default).width(.condensed)
+        .custom(semibold, size: size)
     }
 
     /// Small uppercase labels / eyebrow text.
     static func label(_ size: CGFloat = 13) -> Font {
-        .system(size: size, weight: .bold, design: .default).width(.condensed)
+        .custom(medium, size: size)
     }
 
-    /// Body copy uses the rounded system font for readability.
+    /// Body copy.
     static func body(_ size: CGFloat = 16) -> Font {
-        .system(size: size, weight: .regular, design: .rounded)
+        .custom(regular, size: size)
     }
 
     static func bodyBold(_ size: CGFloat = 16) -> Font {
-        .system(size: size, weight: .semibold, design: .rounded)
+        .custom(medium, size: size)
     }
 }
 

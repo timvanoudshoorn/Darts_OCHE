@@ -3,7 +3,12 @@ import SwiftData
 
 @main
 struct OCHEApp: App {
-    @StateObject private var settings = SettingsStore()
+    @StateObject private var settings: SettingsStore
+
+    init() {
+        FontLoader.registerBundledFonts()
+        _settings = StateObject(wrappedValue: SettingsStore())
+    }
 
     var body: some Scene {
         WindowGroup {

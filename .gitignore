@@ -1,0 +1,14 @@
+# Generated Xcode project (created by xcodegen in CI)
+OCHE.xcodeproj/
+*.xcworkspace/
+
+# Build output
+build/
+DerivedData/
+
+# Scratch / temp working dirs
+_fonttmp/
+_icontmp/
+
+# macOS
+.DS_Store
