@@ -66,20 +66,33 @@ extension View {
     func popupOverlay(_ event: Binding<PopupEvent?>, settings: SettingsStore) -> some View {
         overlay(
             Group {
-                if settings.popupsEnabled, let value = event.wrappedValue {
-                    PopupCard(event: value)
-                        .transition(.scale(scale: 0.85).combined(with: .opacity))
-                        .id(value.id)
-                        .onAppear {
-                            let id = value.id
-                            DispatchQueue.main.asyncAfter(deadline: .now() + popupDismissDelay) {
-                                if event.wrappedValue?.id == id {
-                                    withAnimation(.easeOut(duration: 0.2)) {
-                                        event.wrappedValue = nil
-                                    }
-                                }
-                            }
+                if let value = event.wrappedValue {
+                    // The dismiss timer always runs while `event` is non-nil,
+                    // regardless of `popupsEnabled` — only the card's visibility
+                    // is gated by the setting. Otherwise, disabling popups mid-game
+                    // would leave a stale event in the binding forever, ready to
+                    // flash back up the moment popups are re-enabled.
+                    Group {
+                        if settings.popupsEnabled {
+                            PopupCard(event: value)
+                                .transition(.scale(scale: 0.85).combined(with: .opacity))
                         }
+                    }
+                    .id(value.id)
+                    // `.task(id:)` cancels and restarts automatically whenever
+                    // `value.id` changes (a new popup arrived before the old one
+                    // dismissed) or the view disappears — unlike a bare
+                    // `DispatchQueue.asyncAfter`, there's no way for a stale
+                    // timer to fire late or for a new popup's timer to never
+                    // get scheduled, which is what made popups occasionally
+                    // stick on screen under fast back-to-back throws.
+                    .task(id: value.id) {
+                        try? await Task.sleep(for: .seconds(popupDismissDelay))
+                        guard !Task.isCancelled else { return }
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            event.wrappedValue = nil
+                        }
+                    }
                 }
             }
             .animation(.spring(response: 0.35, dampingFraction: 0.65), value: event.wrappedValue?.id)

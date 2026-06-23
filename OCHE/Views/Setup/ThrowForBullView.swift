@@ -12,6 +12,7 @@ struct ThrowForBullView: View {
 
     @State private var currentIndex = 0
     @State private var tapFraction: CGPoint? = nil
+    @State private var pendingDistance: CGFloat? = nil
     @State private var distances: [CGFloat] = []
     @State private var showResults = false
 
@@ -31,6 +32,10 @@ struct ThrowForBullView: View {
                     if showResults {
                         Text("Closest to the bull throws first")
                             .font(OcheFont.body(14))
+                            .foregroundStyle(Theme.textSecondary)
+                    } else if pendingDistance != nil {
+                        Text("Tap again to adjust, or confirm below")
+                            .font(OcheFont.body(15))
                             .foregroundStyle(Theme.textSecondary)
                     } else {
                         Text("\(players[currentIndex].name): tap where your dart landed")
@@ -70,7 +75,7 @@ struct ThrowForBullView: View {
                         DragGesture(minimumDistance: 0)
                             .onEnded { value in
                                 guard !showResults else { return }
-                                register(location: value.location, center: center, r: r, fullSize: geo.size)
+                                mark(location: value.location, center: center, r: r, fullSize: geo.size)
                             }
                     )
                 }
@@ -118,10 +123,26 @@ struct ThrowForBullView: View {
                 } else {
                     Spacer(minLength: 0)
 
-                    Text("Player \(currentIndex + 1) of \(players.count)")
-                        .font(OcheFont.label(13))
-                        .foregroundStyle(Theme.textTertiary)
+                    if pendingDistance != nil {
+                        Button {
+                            confirmThrow()
+                        } label: {
+                            Text("CONFIRM")
+                                .font(OcheFont.heading(18))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(RoundedRectangle(cornerRadius: 18).fill(mode.accentColor))
+                                .foregroundStyle(Color.black)
+                        }
+                        .buttonStyle(SquashButtonStyle())
+                        .padding(.horizontal, 20)
                         .padding(.bottom, 32)
+                    } else {
+                        Text("Player \(currentIndex + 1) of \(players.count)")
+                            .font(OcheFont.label(13))
+                            .foregroundStyle(Theme.textTertiary)
+                            .padding(.bottom, 32)
+                    }
                 }
             }
         }
@@ -132,7 +153,10 @@ struct ThrowForBullView: View {
         players.indices.sorted { distances[$0] < distances[$1] }
     }
 
-    private func register(location: CGPoint, center: CGPoint, r: CGFloat, fullSize: CGSize) {
+    /// Places (or moves) the tap marker without committing it — the player
+    /// can tap again to adjust before confirming, so an accidental tap
+    /// doesn't lock in a wrong throw.
+    private func mark(location: CGPoint, center: CGPoint, r: CGFloat, fullSize: CGSize) {
         // `location` is relative to the GeometryReader, which may be larger
         // than the square board — translate into board-local coordinates.
         let boardOrigin = CGPoint(x: (fullSize.width - r * 2) / 2, y: (fullSize.height - r * 2) / 2)
@@ -142,19 +166,24 @@ struct ThrowForBullView: View {
         let distance = min(1, sqrt(dx * dx + dy * dy) / r)
 
         tapFraction = local
-        distances.append(distance)
+        pendingDistance = distance
         HapticManager.shared.dartThrown()
         SoundManager.shared.play(.dartHit)
+    }
+
+    /// Commits the currently-marked tap as this player's throw and advances.
+    private func confirmThrow() {
+        guard let pendingDistance else { return }
+        distances.append(pendingDistance)
+        self.pendingDistance = nil
 
         if isLastPlayer {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                 showResults = true
             }
         } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                currentIndex += 1
-                tapFraction = nil
-            }
+            currentIndex += 1
+            tapFraction = nil
         }
     }
 
