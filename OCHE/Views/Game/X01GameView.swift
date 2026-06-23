@@ -66,15 +66,8 @@ struct X01GameView: View {
                 }
 
                 HStack(spacing: 12) {
-                    if let suggestion = engine.checkoutSuggestion {
-                        HStack(spacing: 6) {
-                            Text("CHECKOUT:")
-                                .font(OcheFont.label(12))
-                                .foregroundStyle(Theme.textTertiary)
-                            Text(suggestion.labels.joined(separator: "  ·  "))
-                                .font(OcheFont.bodyBold(15))
-                                .foregroundStyle(Theme.scoreCheckout)
-                        }
+                    if !engine.checkoutSuggestions.isEmpty {
+                        CheckoutSuggestionList(suggestions: engine.checkoutSuggestions, color: Theme.scoreCheckout)
                     }
 
                     Spacer(minLength: 0)

@@ -19,7 +19,7 @@ import Foundation
 enum CheckoutTable {
 
     /// A single suggested dart in a checkout sequence.
-    struct Suggestion: Equatable {
+    struct Suggestion: Equatable, Hashable {
         let labels: [String]
         var dartCount: Int { labels.count }
     }
@@ -53,40 +53,53 @@ enum CheckoutTable {
         return darts.sorted { $0.0 > $1.0 }
     }()
 
-    /// Returns a checkout suggestion for `remaining`, or `nil` if no double-out
-    /// finish exists within 3 darts.
+    /// Returns the single best (minimum-dart, most natural) checkout suggestion
+    /// for `remaining`, or `nil` if no double-out finish exists within 3 darts.
+    /// Equivalent to `suggestions(for: remaining, limit: 1).first`.
     static func suggestion(for remaining: Int) -> Suggestion? {
-        guard remaining >= 2, remaining <= 170, remaining != 1,
-              !bogeyNumbers.contains(remaining) else { return nil }
+        suggestions(for: remaining, limit: 1).first
+    }
 
-        // 1 dart
+    /// Returns up to `limit` distinct checkout suggestions for `remaining`, all
+    /// using the same minimum dart count (so every alternative shown is an
+    /// equally "good" route, never a worse one padded in for variety). Ordered
+    /// most-natural first, matching `suggestion(for:)`'s existing choice.
+    static func suggestions(for remaining: Int, limit: Int = 3) -> [Suggestion] {
+        guard remaining >= 2, remaining <= 170, remaining != 1,
+              !bogeyNumbers.contains(remaining) else { return [] }
+
+        // 1 dart — always unique.
         if let finish = finishDarts.first(where: { $0.points == remaining }) {
-            return Suggestion(labels: [finish.label])
+            return [Suggestion(labels: [finish.label])]
         }
 
         // 2 darts
+        var twoDart: [Suggestion] = []
         for setup in setupDarts {
             let rest = remaining - setup.points
             guard rest > 0 else { continue }
             if let finish = finishDarts.first(where: { $0.points == rest }) {
-                return Suggestion(labels: [setup.label, finish.label])
+                twoDart.append(Suggestion(labels: [setup.label, finish.label]))
+                if twoDart.count == limit { break }
             }
         }
+        if !twoDart.isEmpty { return twoDart }
 
         // 3 darts
-        for first in setupDarts {
+        var threeDart: [Suggestion] = []
+        outer: for first in setupDarts {
             let afterFirst = remaining - first.points
             guard afterFirst > 0 else { continue }
             for second in setupDarts {
                 let rest = afterFirst - second.points
                 guard rest > 0 else { continue }
                 if let finish = finishDarts.first(where: { $0.points == rest }) {
-                    return Suggestion(labels: [first.label, second.label, finish.label])
+                    threeDart.append(Suggestion(labels: [first.label, second.label, finish.label]))
+                    if threeDart.count == limit { break outer }
                 }
             }
         }
-
-        return nil
+        return threeDart
     }
 
     /// Convenience: whether `remaining` can be finished at all (used to drive the

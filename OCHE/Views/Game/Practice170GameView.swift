@@ -62,15 +62,8 @@ struct Practice170GameView: View {
                         .font(OcheFont.label(14))
                         .foregroundStyle(Theme.textSecondary)
 
-                    if let suggestion = engine.checkoutSuggestion {
-                        HStack(spacing: 6) {
-                            Text("CHECKOUT:")
-                                .font(OcheFont.label(12))
-                                .foregroundStyle(Theme.textTertiary)
-                            Text(suggestion.labels.joined(separator: "  ·  "))
-                                .font(OcheFont.bodyBold(15))
-                                .foregroundStyle(Theme.magenta)
-                        }
+                    if !engine.checkoutSuggestions.isEmpty {
+                        CheckoutSuggestionList(suggestions: engine.checkoutSuggestions, color: Theme.magenta)
                     }
                 }
                 .frame(maxWidth: .infinity)

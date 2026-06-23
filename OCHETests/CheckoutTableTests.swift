@@ -52,6 +52,45 @@ final class CheckoutTableTests: XCTestCase {
         }
     }
 
+    func testSuggestionsReturnsSingleRouteWhenOnlyOneExists() {
+        // 170 has exactly one 3-dart double-out route.
+        let multi = CheckoutTable.suggestions(for: 170)
+        XCTAssertEqual(multi.count, 1)
+        XCTAssertEqual(multi.first, CheckoutTable.suggestion(for: 170))
+    }
+
+    func testSuggestionsCapsAtLimitWithDistinctSameDartCountRoutes() {
+        let dartValues = makeDartPointMap()
+        let multi = CheckoutTable.suggestions(for: 80, limit: 3)
+
+        XCTAssertEqual(multi.count, 3, "80 has several valid 2-dart routes, expected the cap to apply")
+        XCTAssertEqual(Set(multi).count, multi.count, "all returned routes should be distinct")
+
+        for route in multi {
+            XCTAssertEqual(route.dartCount, 2, "all alternatives for 80 should use the same minimal dart count")
+            let last = route.labels.last!
+            XCTAssertTrue(last == "D Bull" || last.hasPrefix("D"), "route must finish on a double")
+            let total = route.labels.reduce(0) { $0 + (dartValues[$1] ?? 0) }
+            XCTAssertEqual(total, 80, "\(route.labels) should sum to 80")
+        }
+    }
+
+    func testSuggestionsFirstAlwaysMatchesSingleSuggestion() {
+        for remaining in 2...170 {
+            let single = CheckoutTable.suggestion(for: remaining)
+            let multi = CheckoutTable.suggestions(for: remaining)
+            XCTAssertEqual(multi.first, single, "suggestions(for:)'s first result must match suggestion(for:) for \(remaining)")
+        }
+    }
+
+    func testSuggestionsEmptyWhereSuggestionIsNil() {
+        for bogey in [159, 162, 163, 165, 166, 168, 169] {
+            XCTAssertTrue(CheckoutTable.suggestions(for: bogey).isEmpty)
+        }
+        XCTAssertTrue(CheckoutTable.suggestions(for: 1).isEmpty)
+        XCTAssertTrue(CheckoutTable.suggestions(for: 171).isEmpty)
+    }
+
     private func makeDartPointMap() -> [String: Int] {
         var map: [String: Int] = ["D Bull": 50, "Bull": 25]
         for n in 1...20 {

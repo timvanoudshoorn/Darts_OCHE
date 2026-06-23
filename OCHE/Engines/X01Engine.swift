@@ -58,9 +58,10 @@ final class X01Engine: GameEngineBase<X01State> {
 
     func remaining(for playerIndex: Int) -> Int { current.scores[playerIndex] }
 
-    /// Checkout suggestion for the active player's current remaining score.
-    var checkoutSuggestion: CheckoutTable.Suggestion? {
-        CheckoutTable.suggestion(for: current.scores[current.currentPlayerIndex])
+    /// Checkout suggestions for the active player's current remaining score —
+    /// a few alternative same-dart-count routes when more than one exists.
+    var checkoutSuggestions: [CheckoutTable.Suggestion] {
+        CheckoutTable.suggestions(for: current.scores[current.currentPlayerIndex])
     }
 
     /// Throws a dart for the current player. Returns the outcome so the UI can

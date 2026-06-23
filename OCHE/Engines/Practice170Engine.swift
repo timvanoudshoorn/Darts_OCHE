@@ -57,9 +57,10 @@ final class Practice170Engine: GameEngineBase<Practice170State> {
 
     func roundsFinished(for player: Int) -> Int { current.roundsFinished[player] }
 
-    /// Checkout suggestion for the current shared score.
-    var checkoutSuggestion: CheckoutTable.Suggestion? {
-        CheckoutTable.suggestion(for: current.sharedScore)
+    /// Checkout suggestions for the current shared score — a few alternative
+    /// same-dart-count routes when more than one exists.
+    var checkoutSuggestions: [CheckoutTable.Suggestion] {
+        CheckoutTable.suggestions(for: current.sharedScore)
     }
 
     @discardableResult
