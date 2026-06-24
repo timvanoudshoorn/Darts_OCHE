@@ -67,7 +67,10 @@ struct NumberPad: View {
     }
 }
 
-/// Single/Double/Triple selector — re-colors the entire pad below it.
+/// Single/Double/Triple selector — re-colors the entire pad below it. The
+/// active multiplier gets a confident solid fill (the one moment of color
+/// here); resting tabs stay flat, matching Direction F's "glow/fill is
+/// reserved for the active choice, not default chrome" principle.
 struct MultiplierSelector: View {
     @Binding var multiplier: Multiplier
 
@@ -86,13 +89,13 @@ struct MultiplierSelector: View {
                         .padding(.vertical, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(isActive ? mult.color.opacity(0.22) : Theme.surface)
+                                .fill(isActive ? mult.color : Theme.surface)
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 14)
-                                .strokeBorder(isActive ? mult.color : Theme.stroke, lineWidth: isActive ? 2 : 1)
+                                .strokeBorder(isActive ? Color.clear : Theme.stroke, lineWidth: 1)
                         )
-                        .foregroundStyle(isActive ? mult.color : Theme.textSecondary)
+                        .foregroundStyle(isActive ? Color.black : Theme.textSecondary)
                 }
                 .buttonStyle(SquashButtonStyle())
             }
@@ -124,12 +127,7 @@ struct NumberPadButton: View {
         } label: {
             ZStack {
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(
-                        LinearGradient(
-                            colors: [Theme.surfaceElevated, Theme.surface],
-                            startPoint: .top, endPoint: .bottom
-                        )
-                    )
+                    .fill(Theme.surface)
                 RoundedRectangle(cornerRadius: 16)
                     .fill(stateTint)
                 RoundedRectangle(cornerRadius: 16)
@@ -151,7 +149,7 @@ struct NumberPadButton: View {
                     if state == .checkout {
                         Text("OUT ✓")
                             .font(OcheFont.label(11))
-                            .foregroundStyle(baseColor)
+                            .foregroundStyle(Color.black.opacity(0.65))
                     } else if state == .near {
                         Image(systemName: "arrow.right")
                             .font(.system(size: 11, weight: .bold))
@@ -160,7 +158,6 @@ struct NumberPadButton: View {
                 }
             }
             .frame(height: 56)
-            .shadow(color: .black.opacity(0.35), radius: 4, y: 2)
         }
         .buttonStyle(SquashButtonStyle())
         .scaleEffect(state == .checkout && pulse ? 1.06 : 1.0)
@@ -178,20 +175,23 @@ struct NumberPadButton: View {
         .accessibilityLabel(accessibilityLabel)
     }
 
+    /// The exact-checkout button gets a confident *solid* fill (not just a
+    /// tint) — it's the one button on the pad that should visually shout;
+    /// everything else stays a light tint at most.
     private var stateTint: Color {
         switch state {
-        case .checkout: return baseColor.opacity(0.30)
-        case .bust: return Theme.bust.opacity(0.12)
-        case .near: return Theme.near.opacity(0.16)
-        case .target: return accent.opacity(0.18)
+        case .checkout: return baseColor
+        case .bust: return Theme.bust.opacity(0.10)
+        case .near: return Theme.near.opacity(0.14)
+        case .target: return accent.opacity(0.16)
         case .normal: return .clear
         }
     }
 
     private var borderColor: Color {
         switch state {
-        case .checkout: return baseColor
-        case .bust: return Theme.bust.opacity(0.5)
+        case .checkout: return Color.clear
+        case .bust: return Theme.bust.opacity(0.45)
         case .near: return Theme.near
         case .target: return accent
         case .normal: return Theme.stroke
@@ -200,14 +200,16 @@ struct NumberPadButton: View {
 
     private var borderWidth: CGFloat {
         switch state {
-        case .checkout, .target: return 2
+        case .target: return 2
         case .near: return 1.5
         default: return 1
         }
     }
 
     private var textColor: Color {
-        dart.isMiss ? Theme.textSecondary : baseColor
+        if dart.isMiss { return Theme.textSecondary }
+        if state == .checkout { return Color.black }
+        return baseColor
     }
 
     private var accessibilityLabel: String {

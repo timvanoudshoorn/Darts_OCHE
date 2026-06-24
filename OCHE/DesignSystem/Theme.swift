@@ -1,16 +1,24 @@
 import SwiftUI
 
-/// Central color & style palette for OCHE — "Modern Minimalist Esports":
-/// a flat near-black canvas, glassy surfaces, and a signature cyan→violet
-/// gradient used for primary accents, big score numbers, and active-state
-/// borders/glows.
+/// Central color & style palette for OCHE — "Direction F: Tour Ready":
+/// a near-black navy canvas, hairline-bordered surfaces (depth via elevation
+/// and shadow, not glow), and one confident brand accent instead of the old
+/// cyan→violet gradient.
+///
+/// Property *names* below are unchanged from the original "Direction C"
+/// palette (touching every one of their ~200 call sites across the app
+/// wasn't worth the risk) but most *values* are new — see each property's
+/// comment for what it actually renders as now. The one real bug fix baked
+/// in here: `bust` used to be aliased to the same color as `triple`-hits
+/// (both were `magenta`), so a bust and a triple-20 looked identical. They're
+/// now genuinely distinct colors.
 enum Theme {
     // MARK: Base
 
-    static let background = Color(hex: 0x0A0B10)
-    static let surface = Color(hex: 0x14161F)
-    static let surfaceElevated = Color(hex: 0x1B1E2B)
-    static let stroke = Color.white.opacity(0.06)
+    static let background = Color(hex: 0x0B0D12)
+    static let surface = Color(hex: 0x161922)
+    static let surfaceElevated = Color(hex: 0x1E222E)
+    static let stroke = Color.white.opacity(0.07)
 
     static let textPrimary = Color.white
     static let textSecondary = Color.white.opacity(0.55)
@@ -18,33 +26,39 @@ enum Theme {
 
     // MARK: Accent palette
 
-    static let cyan = Color(hex: 0x2DE0FF)
-    static let violet = Color(hex: 0x9B6BFF)
-    static let magenta = Color(hex: 0xFF5FB8)
-    static let green = Color(hex: 0x3CE6A6)
-    static let amber = Color(hex: 0xFFC857)
+    /// The single brand accent ("oche" red/orange) — was the cyan half of
+    /// the old gradient; now the one confident accent used everywhere.
+    static let cyan = Color(hex: 0xFF5C39)
+    /// Secondary tint for triple-hits / Halve-It — genuinely distinct from
+    /// both the brand accent and `bust` (previously this and `magenta`
+    /// were the same color as `bust`).
+    static let violet = Color(hex: 0x8B7CF6)
+    static let magenta = Color(hex: 0x8B7CF6)
+    static let green = Color(hex: 0x2FBE7A)
+    static let amber = Color(hex: 0xF0B23E)
 
-    /// The signature cyan→violet gradient used for big score numbers,
-    /// active-player borders, and popup highlights.
+    /// Was a cyan→violet gradient; Direction F uses one confident accent
+    /// instead, so both stops are the same color — every call site that
+    /// renders this (big score numbers, headings, active-state borders)
+    /// now gets a flat brand-accent fill rather than a rainbow blend.
     static let accentGradient = LinearGradient(
-        colors: [cyan, violet],
+        colors: [cyan, cyan],
         startPoint: .topLeading, endPoint: .bottomTrailing
     )
 
     // MARK: Ambient gradient colors (background glows) — kept as aliases
-    // onto the Direction C accent palette so existing call sites continue
-    // to compile.
+    // so existing call sites continue to compile.
 
     static let glowTeal = green
     static let glowSky = cyan
-    static let glowPink = magenta
+    static let glowPink = violet
     static let glowViolet = violet
 
     // MARK: Multiplier colors (drive number pad re-tint)
 
     static let single = Color.white
     static let double = green
-    static let triple = magenta
+    static let triple = violet
 
     // MARK: Score card thresholds
 
@@ -57,7 +71,7 @@ enum Theme {
 
     static let modeAroundClock = green
     static let modeStandard = cyan
-    static let modeCricket = magenta
+    static let modeCricket = Color(hex: 0x1FB6A6)
     static let modeCountUp = amber
     static let modeKiller = Color(hex: 0xFF4560)
     static let modeHalveIt = violet
@@ -65,7 +79,9 @@ enum Theme {
 
     // MARK: Semantic helpers
 
-    static let bust = magenta
+    /// Genuinely distinct from `triple`/`magenta` now — see the type's doc
+    /// comment for the bug this fixes.
+    static let bust = Color(hex: 0xE2364A)
     static let near = green
 
     /// Returns the score-card color for a remaining x01 score.
@@ -98,8 +114,10 @@ extension Color {
     }
 }
 
-/// Flat near-black background used behind every screen, with two soft
-/// cyan/violet radial glows in the corners — the Direction C signature.
+/// Flat near-black background used behind every screen, with a single
+/// restrained accent glow at the top — Direction F reserves glow for state
+/// (active player, checkout range), not decoration, so this is deliberately
+/// calmer than the old two-color corner-glow treatment.
 struct AmbientBackground: View {
     var body: some View {
         ZStack {
@@ -107,14 +125,8 @@ struct AmbientBackground: View {
                 .ignoresSafeArea()
 
             RadialGradient(
-                colors: [Theme.cyan.opacity(0.16), .clear],
-                center: .topTrailing, startRadius: 10, endRadius: 460
-            )
-            .ignoresSafeArea()
-
-            RadialGradient(
-                colors: [Theme.violet.opacity(0.18), .clear],
-                center: .bottomLeading, startRadius: 10, endRadius: 480
+                colors: [Theme.cyan.opacity(0.08), .clear],
+                center: .top, startRadius: 10, endRadius: 520
             )
             .ignoresSafeArea()
         }
@@ -152,8 +164,7 @@ extension View {
         modifier(WoodFrame(cornerRadius: cornerRadius, lineWidth: lineWidth))
     }
 
-    /// A gradient-edge border using the signature cyan→violet accent —
-    /// used for active-player cards and popups.
+    /// A flat brand-accent border — used for active-player cards and popups.
     func gradientBorder(cornerRadius: CGFloat, lineWidth: CGFloat = 1.5) -> some View {
         overlay(
             RoundedRectangle(cornerRadius: cornerRadius)

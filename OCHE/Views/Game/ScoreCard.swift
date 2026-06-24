@@ -1,8 +1,11 @@
 import SwiftUI
 
-/// Big scoreboard card for the active player. The remaining-score color shifts
-/// from cream/white (high) -> sky blue (<=170) -> amber (<=100) -> glowing teal
-/// (<=40, "Checkout range!"), per the design system.
+/// Broadcast "lower-third" scoreboard card for one player: a left accent bar
+/// (colored when active, muted gray otherwise) instead of a glowing border —
+/// Direction F reserves color/glow for genuine state, not default chrome.
+/// The remaining-score number stays neutral white and only shifts color when
+/// truly in checkout range (<=40), rather than cycling through a tier of
+/// colors as the score drops.
 struct ScoreCard: View {
     var playerName: String
     var remaining: Int
@@ -12,92 +15,54 @@ struct ScoreCard: View {
 
     @State private var bustShake: CGFloat = 0
     @State private var slamScale: CGFloat = 1.0
-    @State private var ringPulse = false
 
-    private var color: Color { Theme.scoreCardColor(forRemaining: remaining) }
     private var isCheckoutRange: Bool { remaining <= 40 && remaining > 0 }
-
-    /// Big score numbers use the signature cyan→violet gradient while in the
-    /// "high" range; lower ranges keep their semantic warning colors.
-    private var scoreStyle: AnyShapeStyle {
-        remaining > 170 ? AnyShapeStyle(Theme.accentGradient) : AnyShapeStyle(color)
-    }
+    private var scoreColor: Color { isCheckoutRange ? Theme.scoreCheckout : Theme.textPrimary }
 
     var body: some View {
-        VStack(spacing: 6) {
-            HStack {
-                Circle()
-                    .fill(isActive ? accent : Theme.textTertiary)
-                    .frame(width: 8, height: 8)
-                Text(playerName.uppercased())
-                    .font(OcheFont.label(14))
-                    .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
-                Spacer()
-                if isCheckoutRange {
-                    Text("CHECKOUT RANGE!")
-                        .font(OcheFont.label(11))
-                        .foregroundStyle(Theme.scoreCheckout)
+        HStack(spacing: 0) {
+            Rectangle()
+                .fill(isActive ? accent : Theme.textTertiary.opacity(0.4))
+                .frame(width: 4)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(playerName.uppercased())
+                        .font(OcheFont.label(12))
+                        .foregroundStyle(isActive ? Theme.textPrimary : Theme.textSecondary)
+                    Spacer()
+                    if isCheckoutRange {
+                        Text("CHECKOUT")
+                            .font(OcheFont.label(10))
+                            .foregroundStyle(Theme.scoreCheckout)
+                    }
+                }
+
+                Text("\(remaining)")
+                    .font(OcheFont.scoreDisplay(isActive ? 64 : 44))
+                    .foregroundStyle(scoreColor)
+                    .contentTransition(.numericText())
+                    .scaleEffect(slamScale)
+                    .offset(x: bustShake)
+                    .animation(.default, value: remaining)
+
+                if let subtitle {
+                    Text(subtitle)
+                        .font(OcheFont.body(12))
+                        .foregroundStyle(Theme.textSecondary)
                 }
             }
-
-            VStack(spacing: 2) {
-                Rectangle().fill(Theme.textTertiary).frame(height: 1)
-                Rectangle().fill(Theme.textTertiary).frame(height: 1)
-            }
-            .opacity(0.5)
-
-            Text("\(remaining)")
-                .font(OcheFont.scoreDisplay(isActive ? 84 : 56))
-                .foregroundStyle(scoreStyle)
-                .contentTransition(.numericText())
-                .scaleEffect(slamScale)
-                .offset(x: bustShake)
-                .animation(.default, value: remaining)
-
-            if let subtitle {
-                Text(subtitle)
-                    .font(OcheFont.body(13))
-                    .foregroundStyle(Theme.textSecondary)
-            }
+            .padding(.leading, 14)
+            .padding(.trailing, 16)
+            .padding(.vertical, 14)
         }
-        .padding(16)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(
-                    LinearGradient(
-                        colors: [Theme.surfaceElevated, Theme.surface],
-                        startPoint: .top, endPoint: .bottom
-                    )
-                )
-        )
-        .woodFrame(cornerRadius: 20, lineWidth: 1.5)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(isActive ? Theme.surfaceElevated : Theme.surface)
         .overlay(
-            Group {
-                if isActive {
-                    RoundedRectangle(cornerRadius: 20)
-                        .strokeBorder(Theme.accentGradient, lineWidth: 2)
-                        .opacity(ringPulse ? 1.0 : 0.55)
-                }
-            }
+            RoundedRectangle(cornerRadius: 14)
+                .strokeBorder(Theme.stroke, lineWidth: 1)
         )
-        .shadow(color: isActive ? accent.opacity(0.25) : .clear, radius: 16)
-        .onAppear {
-            if isActive {
-                withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
-                    ringPulse = true
-                }
-            }
-        }
-        .onChange(of: isActive) { active in
-            if active {
-                withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
-                    ringPulse = true
-                }
-            } else {
-                ringPulse = false
-            }
-        }
+        .clipShape(RoundedRectangle(cornerRadius: 14))
         .onChange(of: remaining) { _ in
             withAnimation(.spring(response: 0.25, dampingFraction: 0.4)) {
                 slamScale = 1.06
