@@ -1,31 +1,29 @@
 import SwiftUI
 
-/// A premium home-screen card for one game mode: a glassy panel lit by a soft
-/// mode-colored glow on the leading edge, a glowing icon badge, the title and
-/// subtitle, and a tinted chevron.
+/// A Direction F mode-list row: a flat surface card, a solid mode-colored
+/// icon badge (no glow/translucency), title and subtitle, and a chevron.
+/// Color here is a confident solid fill on the badge only — the card itself
+/// stays flat, no per-card glow wash behind it.
 struct ModeCard: View {
     let mode: GameMode
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 14) {
             ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(mode.accentColor.opacity(0.16))
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(mode.accentColor.opacity(0.55), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 13)
+                    .fill(mode.accentColor)
                 Image(systemName: mode.icon)
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(mode.accentColor)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(Color.black)
             }
-            .frame(width: 56, height: 56)
-            .shadow(color: mode.accentColor.opacity(0.45), radius: 10)
+            .frame(width: 48, height: 48)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(mode.title.uppercased())
-                    .font(OcheFont.heading(21))
+                Text(mode.title)
+                    .font(OcheFont.heading(17))
                     .foregroundStyle(Theme.textPrimary)
                 Text(mode.subtitle)
-                    .font(OcheFont.body(13))
+                    .font(OcheFont.body(12.5))
                     .foregroundStyle(Theme.textSecondary)
             }
 
@@ -33,26 +31,15 @@ struct ModeCard: View {
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(mode.accentColor.opacity(0.7))
+                .foregroundStyle(Theme.textTertiary)
         }
-        .padding(16)
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Theme.surface)
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(
-                        RadialGradient(
-                            colors: [mode.accentColor.opacity(0.20), .clear],
-                            center: .leading, startRadius: 4, endRadius: 240
-                        )
-                    )
-            }
-        )
+        .padding(14)
+        .background(Theme.surface)
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 16)
                 .strokeBorder(Theme.stroke, lineWidth: 1)
         )
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(mode.title). \(mode.subtitle)")
     }

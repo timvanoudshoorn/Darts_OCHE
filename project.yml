@@ -13,7 +13,7 @@ settings:
     # Bump these on every meaningful change so AltStore/iOS treats a fresh
     # IPA as an update instead of skipping the (re)install.
     MARKETING_VERSION: "3.0"
-    CURRENT_PROJECT_VERSION: "10"
+    CURRENT_PROJECT_VERSION: "11"
 
 targets:
   OCHE:
