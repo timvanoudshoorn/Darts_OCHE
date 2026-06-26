@@ -59,9 +59,11 @@ struct NumberPad: View {
                 NumberPadButton(dart: bullDart, state: stateFor(bullDart), accent: accent, customLabel: bullMultiplier == .double ? "D-BULL" : "BULL") {
                     onThrow(bullDart)
                 }
+                .frame(maxWidth: .infinity)
                 NumberPadButton(dart: Dart.miss, state: .normal, accent: accent, customLabel: "MISS") {
                     onThrow(Dart.miss)
                 }
+                .frame(maxWidth: .infinity)
             }
         }
     }

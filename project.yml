@@ -12,8 +12,8 @@ settings:
     CODE_SIGN_STYLE: Automatic
     # Bump these on every meaningful change so AltStore/iOS treats a fresh
     # IPA as an update instead of skipping the (re)install.
-    MARKETING_VERSION: "3.0"
-    CURRENT_PROJECT_VERSION: "11"
+    MARKETING_VERSION: "3.1"
+    CURRENT_PROJECT_VERSION: "12"
 
 targets:
   OCHE:
@@ -25,6 +25,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.oche.app
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_KEY_CFBundleDisplayName: "Dart Masters"
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait

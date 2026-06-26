@@ -14,6 +14,7 @@ struct KillerGameView: View {
     @State private var showGameOver = false
 
     private let accent = GameMode.killer.accentColor
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 5)
 
     var body: some View {
         Group {
@@ -70,7 +71,15 @@ struct KillerGameView: View {
 
                 Spacer(minLength: 0)
 
-                NumberPad(multiplier: $multiplier, accent: accent, stateFor: cellState, onThrow: handleThrow)
+                Group {
+                    if engine.phase == .assignment {
+                        claimPad
+                    } else if !engine.isLive(engine.currentPlayerIndex) {
+                        hitMissPad
+                    } else {
+                        killerLivePad
+                    }
+                }
             }
             .padding(16)
             .padding(.bottom, 8)
@@ -79,6 +88,93 @@ struct KillerGameView: View {
         .screenFlash($flashColor, settings: settings)
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showSettings) { SettingsSheet() }
+    }
+
+    /// Bull-off assignment pad: exactly one dart, single multiplier only, and
+    /// only unclaimed numbers are offered — no double/triple/bull/miss choices.
+    private var claimPad: some View {
+        let claimed = Set(engine.players.indices.compactMap { engine.assignedNumber(for: $0) })
+        let available = (1...20).reversed().filter { !claimed.contains($0) }
+        return LazyVGrid(columns: columns, spacing: 8) {
+            ForEach(available, id: \.self) { n in
+                let dart = Dart(value: n, multiplier: .single)
+                NumberPadButton(dart: dart, state: .target, accent: accent) {
+                    handleThrow(dart)
+                }
+            }
+        }
+    }
+
+    /// Building-lives pad for a player who has claimed a number but isn't a
+    /// killer yet — just Hit (own number) or Miss, no full grid.
+    private var hitMissPad: some View {
+        let ownNumber = engine.assignedNumber(for: engine.currentPlayerIndex) ?? 0
+        return HStack(spacing: 8) {
+            Button {
+                handleThrow(Dart(value: ownNumber, multiplier: .single))
+            } label: {
+                Text("HIT ✓")
+                    .font(OcheFont.button(26))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 22)
+                    .background(RoundedRectangle(cornerRadius: 16).fill(Theme.green.opacity(0.22)))
+                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.green, lineWidth: 2))
+                    .foregroundStyle(Theme.green)
+            }
+            .buttonStyle(SquashButtonStyle())
+            .frame(maxWidth: .infinity)
+
+            Button {
+                handleThrow(Dart.miss)
+            } label: {
+                Text("MISS")
+                    .font(OcheFont.button(22))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 22)
+                    .background(RoundedRectangle(cornerRadius: 16).fill(Theme.surfaceElevated))
+                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.stroke, lineWidth: 1))
+                    .foregroundStyle(Theme.textSecondary)
+            }
+            .buttonStyle(SquashButtonStyle())
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    /// Hunting pad for a live killer: only other players' claimed (and still
+    /// alive) numbers are targetable, plus Miss — never your own number or an
+    /// unclaimed one.
+    private var killerLivePad: some View {
+        let p = engine.currentPlayerIndex
+        let targets = engine.players.indices
+            .filter { $0 != p && engine.lives(for: $0) > 0 }
+            .compactMap { engine.assignedNumber(for: $0) }
+            .sorted(by: >)
+
+        return VStack(spacing: 12) {
+            MultiplierSelector(multiplier: $multiplier)
+
+            LazyVGrid(columns: columns, spacing: 8) {
+                ForEach(targets, id: \.self) { n in
+                    let dart = Dart(value: n, multiplier: multiplier)
+                    NumberPadButton(dart: dart, state: cellState(dart), accent: accent) {
+                        handleThrow(dart)
+                    }
+                }
+            }
+
+            Button {
+                handleThrow(Dart.miss)
+            } label: {
+                Text("MISS")
+                    .font(OcheFont.button(22))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(RoundedRectangle(cornerRadius: 16).fill(Theme.surfaceElevated))
+                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.stroke, lineWidth: 1))
+                    .foregroundStyle(Theme.textSecondary)
+            }
+            .buttonStyle(SquashButtonStyle())
+        }
     }
 
     /// Status card describing what the current player needs to do.
@@ -127,14 +223,6 @@ struct KillerGameView: View {
 
     private func cellState(_ dart: Dart) -> NumberPadCellState {
         guard dart.points > 0 else { return .normal }
-
-        if engine.phase == .assignment {
-            if dart.value >= 1, dart.value <= 20,
-               !engine.players.indices.contains(where: { engine.assignedNumber(for: $0) == dart.value }) {
-                return .target
-            }
-            return .normal
-        }
 
         let p = engine.currentPlayerIndex
         guard dart.value >= 1, dart.value <= 20 else { return .normal }

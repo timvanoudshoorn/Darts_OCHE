@@ -10,8 +10,8 @@ struct GameLaunchConfig: Hashable, Codable {
     var startingScore: Int = 501
 
     // Around the Clock
-    var finishOnBull: Bool = false
-    var multipliersCount: Bool = false
+    var finishOnBull: Bool = true
+    var multipliersCount: Bool = true
     var reverse: Bool = false
 
     // Count-Up

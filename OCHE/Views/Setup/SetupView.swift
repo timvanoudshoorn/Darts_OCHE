@@ -7,7 +7,7 @@ struct SetupView: View {
     @EnvironmentObject private var router: AppRouter
     @State private var playerNames: [String]
     @State private var config = GameLaunchConfig()
-    @State private var throwForBull = false
+    @State private var throwForBull = true
 
     init(mode: GameMode) {
         self.mode = mode

@@ -53,7 +53,7 @@ struct HomeView: View {
 
                     Spacer(minLength: 0)
 
-                    Text("OCHE · \(versionString)")
+                    Text("DART MASTERS · \(versionString)")
                         .font(OcheFont.label(11))
                         .foregroundStyle(Theme.textTertiary)
                         .padding(.bottom, 24)
@@ -106,9 +106,11 @@ struct HomeView: View {
             }
 
             VStack(spacing: 4) {
-                Text("OCHE")
-                    .font(OcheFont.scoreDisplay(48))
+                Text("DART MASTERS")
+                    .font(OcheFont.scoreDisplay(34))
                     .foregroundStyle(Theme.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
                 Text("Pick a mode and start throwing.")
                     .font(OcheFont.body(14))
                     .foregroundStyle(Theme.textSecondary)

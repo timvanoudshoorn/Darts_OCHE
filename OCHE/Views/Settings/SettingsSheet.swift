@@ -41,7 +41,7 @@ struct SettingsSheet: View {
                 Spacer()
 
                 VStack(spacing: 4) {
-                    Text("OCHE")
+                    Text("DART MASTERS")
                         .font(OcheFont.heading(18))
                     Text("Free forever. No account required.")
                         .font(OcheFont.body(12))
