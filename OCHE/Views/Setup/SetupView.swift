@@ -52,18 +52,18 @@ struct SetupView: View {
                         Text("START")
                             .font(OcheFont.heading(22))
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
+                            .padding(.vertical, Spacing.lg)
                             .background(
-                                RoundedRectangle(cornerRadius: 18)
+                                RoundedRectangle(cornerRadius: Corner.xl)
                                     .fill(mode.accentColor)
                             )
                             .foregroundStyle(Color.black)
                     }
                     .buttonStyle(SquashButtonStyle())
-                    .padding(.top, 8)
-                    .padding(.bottom, 32)
+                    .padding(.top, Spacing.sm)
+                    .padding(.bottom, Spacing.xxxl)
                 }
-                .padding(20)
+                .padding(Spacing.xl)
             }
         }
         .navigationTitle("Setup")
@@ -96,9 +96,8 @@ struct SetupView: View {
                         }
                     }
                 }
-                .padding(14)
-                .background(RoundedRectangle(cornerRadius: 14).fill(Theme.surface))
-                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.stroke, lineWidth: 1))
+                .padding(Spacing.md)
+                .cardStyle(cornerRadius: Corner.md)
             }
 
             if canAddPlayer {
@@ -112,8 +111,8 @@ struct SetupView: View {
                     }
                     .foregroundStyle(mode.accentColor)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(RoundedRectangle(cornerRadius: 14).strokeBorder(mode.accentColor.opacity(0.4), lineWidth: 1.5, antialiased: true))
+                    .padding(.vertical, Spacing.md)
+                    .background(RoundedRectangle(cornerRadius: Corner.md).strokeBorder(mode.accentColor.opacity(0.4), lineWidth: 1.5, antialiased: true))
                 }
                 .buttonStyle(SquashButtonStyle())
             }
@@ -174,13 +173,13 @@ struct SetupView: View {
             Text("\(score)")
                 .font(OcheFont.heading(28))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
+                .padding(.vertical, Spacing.md)
                 .background(
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: Corner.md)
                         .fill(isSelected ? mode.accentColor.opacity(0.22) : Theme.surface)
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: Corner.md)
                         .strokeBorder(isSelected ? mode.accentColor : Theme.stroke, lineWidth: isSelected ? 2 : 1)
                 )
                 .foregroundStyle(isSelected ? mode.accentColor : Theme.textSecondary)
@@ -209,9 +208,8 @@ struct SetupView: View {
                     .foregroundStyle(Theme.textSecondary)
             }
         }
-        .padding(14)
-        .background(RoundedRectangle(cornerRadius: 14).fill(Theme.surface))
-        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.stroke, lineWidth: 1))
+        .padding(Spacing.md)
+        .cardStyle(cornerRadius: Corner.md)
     }
 
     private func stepperRow(_ title: String, value: Binding<Int>, range: ClosedRange<Int>) -> some View {
@@ -226,9 +224,8 @@ struct SetupView: View {
                     .labelsHidden()
                     .tint(mode.accentColor)
             }
-            .padding(14)
-            .background(RoundedRectangle(cornerRadius: 14).fill(Theme.surface))
-            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.stroke, lineWidth: 1))
+            .padding(Spacing.md)
+            .cardStyle(cornerRadius: Corner.md)
         }
     }
 }

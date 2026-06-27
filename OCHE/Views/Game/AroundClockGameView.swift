@@ -7,7 +7,6 @@ struct AroundClockGameView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.dismiss) private var dismiss
 
-    @State private var multiplier: Multiplier = .single
     @State private var popup: PopupEvent? = nil
     @State private var flashColor: Color? = nil
     @State private var showSettings = false
@@ -79,11 +78,7 @@ struct AroundClockGameView: View {
 
                 Spacer(minLength: 0)
 
-                if engine.multipliersCount {
-                    NumberPad(multiplier: $multiplier, accent: accent, stateFor: cellState, onThrow: handleThrow)
-                } else {
-                    simplePad
-                }
+                targetPad
             }
             .padding(16)
             .padding(.bottom, 8)
@@ -124,43 +119,61 @@ struct AroundClockGameView: View {
         return Set(engine.sequence[0..<done])
     }
 
-    private func cellState(_ dart: Dart) -> NumberPadCellState {
-        engine.isOnTarget(dart) ? .target : .normal
+    /// Always exactly 4 buttons: Single/Double/Triple of the *current target*
+    /// + Miss — never the full 20-number grid, since only the active target
+    /// is ever a relevant throw in this mode. `engine.multipliersCount` is a
+    /// pure scoring rule now (how far a multiplier-hit advances), not a pad
+    /// selector — every multiplier is always offered here regardless of it.
+    @ViewBuilder
+    private var targetPad: some View {
+        // Defensive fallback for the brief nil-target window between a
+        // player's final hit and the game-over transition firing — mirrors
+        // the old simplePad's `?? 0` behavior rather than force-unwrapping.
+        let target = engine.currentTarget(for: engine.currentPlayerIndex) ?? 0
+
+        VStack(spacing: 8) {
+            if target == 25 {
+                // Bull only ever supports Single/Double on a real board —
+                // `Dart.init` silently downgrades triple-bull to double, so
+                // looping the generic multiplier list here would render a
+                // second, duplicate double-bull button. Two explicit
+                // buttons avoids that entirely.
+                HStack(spacing: 8) {
+                    bullButton(.single, label: "BULL")
+                    bullButton(.double, label: "D-BULL")
+                }
+            } else {
+                HStack(spacing: 8) {
+                    ForEach(Multiplier.allCases) { mult in
+                        targetButton(target, mult)
+                    }
+                }
+            }
+
+            NumberPadButton(dart: Dart.miss, state: .normal, accent: accent, customLabel: "MISS") {
+                handleThrow(Dart.miss)
+            }
+        }
     }
 
-    /// Simplified Hit/Miss pad used when multipliers don't advance progress.
-    private var simplePad: some View {
-        HStack(spacing: 8) {
-            Button {
-                let target = engine.currentTarget(for: engine.currentPlayerIndex) ?? 0
-                handleThrow(Dart(value: target, multiplier: .single))
-            } label: {
-                Text("HIT ✓")
-                    .font(OcheFont.button(26))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 22)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(Theme.green.opacity(0.22)))
-                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.green, lineWidth: 2))
-                    .foregroundStyle(Theme.green)
-            }
-            .buttonStyle(SquashButtonStyle())
-            .frame(maxWidth: .infinity)
-            .layoutPriority(2)
-
-            Button {
-                handleThrow(Dart.miss)
-            } label: {
-                Text("MISS")
-                    .font(OcheFont.button(22))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 22)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(Theme.surfaceElevated))
-                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.stroke, lineWidth: 1))
-                    .foregroundStyle(Theme.textSecondary)
-            }
-            .buttonStyle(SquashButtonStyle())
-            .frame(maxWidth: .infinity)
+    private func targetButton(_ target: Int, _ mult: Multiplier) -> some View {
+        let dart = Dart(value: target, multiplier: mult)
+        return NumberPadButton(dart: dart, state: cellState(dart), accent: accent) {
+            handleThrow(dart)
         }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func bullButton(_ mult: Multiplier, label: String) -> some View {
+        let dart = Dart(value: 25, multiplier: mult)
+        return NumberPadButton(dart: dart, state: cellState(dart), accent: accent, customLabel: label) {
+            handleThrow(dart)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func cellState(_ dart: Dart) -> NumberPadCellState {
+        engine.isOnTarget(dart) ? .target : .normal
     }
 
     private func handleThrow(_ dart: Dart) {
@@ -230,13 +243,9 @@ struct ProgressCard: View {
                 .font(OcheFont.body(12))
                 .foregroundStyle(Theme.textSecondary)
         }
-        .padding(16)
+        .padding(Spacing.lg)
         .frame(maxWidth: .infinity)
-        .background(RoundedRectangle(cornerRadius: 20).fill(Theme.surface))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .strokeBorder(isActive ? accent.opacity(0.5) : Theme.stroke, lineWidth: isActive ? 2 : 1)
-        )
+        .cardStyle(cornerRadius: Corner.xl, isHighlighted: isActive, highlightColor: accent)
         .shadow(color: isActive ? accent.opacity(0.25) : .clear, radius: 16)
     }
 }

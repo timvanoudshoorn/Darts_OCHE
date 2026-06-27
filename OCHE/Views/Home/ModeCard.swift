@@ -8,9 +8,9 @@ struct ModeCard: View {
     let mode: GameMode
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: Spacing.lg) {
             ZStack {
-                RoundedRectangle(cornerRadius: 13)
+                RoundedRectangle(cornerRadius: Corner.md)
                     .fill(mode.accentColor)
                 Image(systemName: mode.icon)
                     .font(.system(size: 20, weight: .bold))
@@ -27,19 +27,15 @@ struct ModeCard: View {
                     .foregroundStyle(Theme.textSecondary)
             }
 
-            Spacer(minLength: 8)
+            Spacer(minLength: Spacing.sm)
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(Theme.textTertiary)
         }
-        .padding(14)
-        .background(Theme.surface)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(Theme.stroke, lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .padding(Spacing.md)
+        .cardStyle(cornerRadius: Corner.md)
+        .clipShape(RoundedRectangle(cornerRadius: Corner.md))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(mode.title). \(mode.subtitle)")
     }

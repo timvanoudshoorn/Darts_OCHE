@@ -157,17 +157,17 @@ struct TotalScoreCard: View {
                     .foregroundStyle(Theme.textSecondary)
             }
         }
-        .padding(16)
+        .padding(Spacing.lg)
         .frame(maxWidth: .infinity)
-        .background(RoundedRectangle(cornerRadius: 20).fill(Theme.surface))
+        .background(RoundedRectangle(cornerRadius: Corner.xl).fill(Theme.surface))
         .overlay(
             Group {
                 if isActive {
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: Corner.xl)
                         .strokeBorder(Theme.accentGradient, lineWidth: 2)
                         .opacity(ringPulse ? 1.0 : 0.55)
                 } else {
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: Corner.xl)
                         .strokeBorder(Theme.stroke, lineWidth: 1)
                 }
             }

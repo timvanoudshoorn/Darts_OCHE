@@ -7,7 +7,7 @@ struct SquashButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
-            .animation(.spring(response: 0.22, dampingFraction: 0.45), value: configuration.isPressed)
+            .animation(Motion.tap, value: configuration.isPressed)
     }
 }
 

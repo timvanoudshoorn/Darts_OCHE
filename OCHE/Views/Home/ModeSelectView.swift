@@ -19,14 +19,13 @@ struct ModeSelectView: View {
                         .opacity(appeared ? 1 : 0)
                         .offset(y: appeared ? 0 : 20)
                         .animation(
-                            .spring(response: 0.5, dampingFraction: 0.85)
-                                .delay(Double(idx) * 0.05),
+                            Motion.reveal.delay(Double(idx) * 0.05),
                             value: appeared
                         )
                     }
                 }
-                .padding(20)
-                .padding(.bottom, 32)
+                .padding(Spacing.xl)
+                .padding(.bottom, Spacing.xxxl)
             }
         }
         .navigationTitle("All Modes")

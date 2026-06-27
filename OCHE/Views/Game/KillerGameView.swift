@@ -117,8 +117,8 @@ struct KillerGameView: View {
                     .font(OcheFont.button(26))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 22)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(Theme.green.opacity(0.22)))
-                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.green, lineWidth: 2))
+                    .background(RoundedRectangle(cornerRadius: Corner.lg).fill(Theme.green.opacity(0.22)))
+                    .overlay(RoundedRectangle(cornerRadius: Corner.lg).strokeBorder(Theme.green, lineWidth: 2))
                     .foregroundStyle(Theme.green)
             }
             .buttonStyle(SquashButtonStyle())
@@ -131,8 +131,8 @@ struct KillerGameView: View {
                     .font(OcheFont.button(22))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 22)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(Theme.surfaceElevated))
-                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.stroke, lineWidth: 1))
+                    .background(RoundedRectangle(cornerRadius: Corner.lg).fill(Theme.surfaceElevated))
+                    .overlay(RoundedRectangle(cornerRadius: Corner.lg).strokeBorder(Theme.stroke, lineWidth: 1))
                     .foregroundStyle(Theme.textSecondary)
             }
             .buttonStyle(SquashButtonStyle())
@@ -169,8 +169,8 @@ struct KillerGameView: View {
                     .font(OcheFont.button(22))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(Theme.surfaceElevated))
-                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Theme.stroke, lineWidth: 1))
+                    .background(RoundedRectangle(cornerRadius: Corner.lg).fill(Theme.surfaceElevated))
+                    .overlay(RoundedRectangle(cornerRadius: Corner.lg).strokeBorder(Theme.stroke, lineWidth: 1))
                     .foregroundStyle(Theme.textSecondary)
             }
             .buttonStyle(SquashButtonStyle())
@@ -213,9 +213,9 @@ struct KillerGameView: View {
         .background(
             Group {
                 if isKillerBanner {
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: Corner.md)
                         .fill(Theme.bust.opacity(0.12))
-                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.bust.opacity(0.5), lineWidth: 1.5))
+                        .overlay(RoundedRectangle(cornerRadius: Corner.md).strokeBorder(Theme.bust.opacity(0.5), lineWidth: 1.5))
                 }
             }
         )
@@ -359,18 +359,18 @@ struct KillerCard: View {
                 }
             }
         }
-        .padding(14)
+        .padding(Spacing.md)
         .frame(maxWidth: .infinity)
         .opacity(isEliminated ? 0.4 : 1.0)
-        .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
+        .background(RoundedRectangle(cornerRadius: Corner.xl).fill(Theme.surface))
         .overlay(
             Group {
                 if isLive {
-                    RoundedRectangle(cornerRadius: 18)
+                    RoundedRectangle(cornerRadius: Corner.xl)
                         .strokeBorder(Theme.accentGradient, lineWidth: 2)
                         .shadow(color: Theme.bust.opacity(0.5), radius: 8)
                 } else {
-                    RoundedRectangle(cornerRadius: 18)
+                    RoundedRectangle(cornerRadius: Corner.xl)
                         .strokeBorder(isActive ? accent.opacity(0.5) : Theme.stroke, lineWidth: isActive ? 2 : 1)
                 }
             }

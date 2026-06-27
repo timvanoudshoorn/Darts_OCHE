@@ -171,6 +171,20 @@ extension View {
                 .strokeBorder(Theme.accentGradient, lineWidth: lineWidth)
         )
     }
+
+    /// The standard flat surface card: `Theme.surface` fill + a hairline
+    /// border, replacing the `RoundedRectangle(...).fill(...).overlay(...)`
+    /// pair duplicated across nearly every card in the app. Pass
+    /// `isHighlighted` for active/winner states (a colored, thicker border
+    /// instead of the default hairline). Composes fine with trailing
+    /// modifiers like `.shadow(...)` chained after it.
+    func cardStyle(cornerRadius: CGFloat = Corner.lg, isHighlighted: Bool = false, highlightColor: Color = Theme.cyan) -> some View {
+        background(RoundedRectangle(cornerRadius: cornerRadius).fill(Theme.surface))
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(isHighlighted ? highlightColor.opacity(0.5) : Theme.stroke, lineWidth: isHighlighted ? 2 : 1)
+            )
+    }
 }
 
 /// A mode badge: a rounded-square glass tile with the mode's SF Symbol

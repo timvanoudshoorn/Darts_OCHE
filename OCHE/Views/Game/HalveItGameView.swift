@@ -7,7 +7,6 @@ struct HalveItGameView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.dismiss) private var dismiss
 
-    @State private var multiplier: Multiplier = .single
     @State private var popup: PopupEvent? = nil
     @State private var flashColor: Color? = nil
     @State private var showSettings = false
@@ -90,7 +89,7 @@ struct HalveItGameView: View {
 
                 Spacer(minLength: 0)
 
-                NumberPad(multiplier: $multiplier, accent: accent, stateFor: cellState, onThrow: handleThrow)
+                targetPad
             }
             .padding(16)
             .padding(.bottom, 8)
@@ -104,6 +103,94 @@ struct HalveItGameView: View {
     /// Whether any dart thrown so far this turn matches the current target.
     private var hitThisTurn: Bool {
         engine.currentTurnDarts.contains { cellState($0) == .target }
+    }
+
+    /// Only what's relevant to *this round's* target — never the full grid
+    /// with an open multiplier choice, since only one multiplier (or one
+    /// exact number) ever actually scores per round.
+    @ViewBuilder
+    private var targetPad: some View {
+        switch engine.currentTarget {
+        case .number(25):
+            // Bull only ever supports Single/Double on a real board — no
+            // triple-bull button (Dart.init silently downgrades any attempt
+            // to double, so a "T-Bull" button would be a lie).
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    bullButton(.single, label: "BULL")
+                    bullButton(.double, label: "D-BULL")
+                }
+                missButton
+            }
+
+        case .number(let n):
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    ForEach(Multiplier.allCases) { mult in
+                        numberButton(n, mult)
+                    }
+                }
+                missButton
+            }
+
+        case .anyDouble:
+            // Any double anywhere on the board scores — including double
+            // bull, which genuinely is a double. Locking the multiplier
+            // means no selector is shown; every button is already a double.
+            VStack(spacing: 8) {
+                lockedGrid(.double, includeBull: true)
+                missButton
+            }
+
+        case .anyTriple:
+            // Triple bull can't exist (Dart.init downgrades it to double),
+            // so bull is omitted entirely rather than shown mislabeled.
+            VStack(spacing: 8) {
+                lockedGrid(.triple, includeBull: false)
+                missButton
+            }
+        }
+    }
+
+    private func numberButton(_ n: Int, _ mult: Multiplier) -> some View {
+        let dart = Dart(value: n, multiplier: mult)
+        return NumberPadButton(dart: dart, state: cellState(dart), accent: accent) {
+            handleThrow(dart)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func bullButton(_ mult: Multiplier, label: String) -> some View {
+        let dart = Dart(value: 25, multiplier: mult)
+        return NumberPadButton(dart: dart, state: cellState(dart), accent: accent, customLabel: label) {
+            handleThrow(dart)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var missButton: some View {
+        NumberPadButton(dart: Dart.miss, state: .normal, accent: accent, customLabel: "MISS") {
+            handleThrow(Dart.miss)
+        }
+    }
+
+    private let lockedColumns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 5)
+
+    private func lockedGrid(_ mult: Multiplier, includeBull: Bool) -> some View {
+        LazyVGrid(columns: lockedColumns, spacing: 8) {
+            ForEach(Array((1...20).reversed()), id: \.self) { n in
+                let dart = Dart(value: n, multiplier: mult)
+                NumberPadButton(dart: dart, state: cellState(dart), accent: accent) {
+                    handleThrow(dart)
+                }
+            }
+            if includeBull {
+                let dart = Dart(value: 25, multiplier: mult)
+                NumberPadButton(dart: dart, state: cellState(dart), accent: accent, customLabel: "D-BULL") {
+                    handleThrow(dart)
+                }
+            }
+        }
     }
 
     private func cellState(_ dart: Dart) -> NumberPadCellState {

@@ -60,7 +60,7 @@ struct CricketGameView: View {
 
                 Spacer(minLength: 0)
 
-                NumberPad(multiplier: $multiplier, accent: accent, stateFor: cellState, onThrow: handleThrow)
+                cricketPad
             }
             .padding(16)
             .padding(.bottom, 8)
@@ -70,6 +70,33 @@ struct CricketGameView: View {
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showSettings) { SettingsSheet() }
     }
+
+    /// Only the 7 scorable Cricket numbers (20-15 + Bull) + Miss — never the
+    /// full 1-20 grid, since the other 14 numbers can never score here.
+    private var cricketPad: some View {
+        VStack(spacing: 8) {
+            MultiplierSelector(multiplier: $multiplier)
+
+            LazyVGrid(columns: cricketColumns, spacing: 8) {
+                ForEach(CricketState.numbers, id: \.self) { n in
+                    let dart = Dart(value: n, multiplier: multiplier)
+                    // Check `dart.multiplier`, not the raw `multiplier`
+                    // selection — `Dart.init` silently downgrades a
+                    // triple-bull selection to double, so the label must
+                    // reflect what was actually constructed.
+                    NumberPadButton(dart: dart, state: cellState(dart), accent: accent, customLabel: n == 25 ? (dart.multiplier == .double ? "D-BULL" : "BULL") : nil) {
+                        handleThrow(dart)
+                    }
+                }
+            }
+
+            NumberPadButton(dart: Dart.miss, state: .normal, accent: accent, customLabel: "MISS") {
+                handleThrow(Dart.miss)
+            }
+        }
+    }
+
+    private let cricketColumns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 4)
 
     private func cellState(_ dart: Dart) -> NumberPadCellState {
         guard CricketState.numbers.contains(dart.value), dart.points > 0 else { return .normal }
@@ -160,9 +187,8 @@ struct CricketBoard: View {
                 }
             }
         }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
-        .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(Theme.stroke, lineWidth: 1))
+        .padding(Spacing.md)
+        .cardStyle(cornerRadius: Corner.xl)
     }
 }
 

@@ -233,7 +233,7 @@ struct DartMarker: View {
             .opacity(appeared ? 1 : 0)
             .position(position())
             .onAppear {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.45)) {
+                withAnimation(Motion.tap) {
                     appeared = true
                 }
             }

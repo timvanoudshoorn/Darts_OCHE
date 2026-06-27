@@ -16,6 +16,11 @@ struct StatsView: View {
     @State private var selectedPlayer: String? = nil
 
     var body: some View {
+        // Presented as a sheet from HomeView (a separate presentation context
+        // from the app's root NavigationStack), so this view needs its own
+        // stack for the match-detail NavigationLink below to have anywhere
+        // to push to.
+        NavigationStack {
         ZStack {
             AmbientBackground()
 
@@ -57,6 +62,7 @@ struct StatsView: View {
                 selectedPlayer = profiles.first?.name
             }
         }
+        }
     }
 
     // MARK: Empty state
@@ -88,14 +94,14 @@ struct StatsView: View {
                     } label: {
                         Text(profile.name.uppercased())
                             .font(OcheFont.bodyBold(14))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
+                            .padding(.horizontal, Spacing.lg)
+                            .padding(.vertical, Spacing.sm)
                             .background(
-                                RoundedRectangle(cornerRadius: 14)
+                                RoundedRectangle(cornerRadius: Corner.md)
                                     .fill(isSelected ? Theme.glowTeal.opacity(0.22) : Theme.surface)
                             )
                             .overlay(
-                                RoundedRectangle(cornerRadius: 14)
+                                RoundedRectangle(cornerRadius: Corner.md)
                                     .strokeBorder(isSelected ? Theme.glowTeal : Theme.stroke, lineWidth: isSelected ? 2 : 1)
                             )
                             .foregroundStyle(isSelected ? Theme.glowTeal : Theme.textSecondary)
@@ -122,6 +128,11 @@ struct StatsView: View {
                 statBlock("BEST AVG", String(format: "%.1f", profile.bestThreeDartAverage))
                 statBlock("BEST CHECKOUT", profile.bestCheckoutPoints > 0 ? "\(profile.bestCheckoutPoints)" : "—")
             }
+            HStack(spacing: 0) {
+                statBlock("FIRST 9 AVG", String(format: "%.1f", profile.lifetimeFirstNineAverage))
+                statBlock("CHECKOUT %", profile.totalCheckoutAttempts > 0 ? String(format: "%.0f%%", profile.lifetimeCheckoutPercentage) : "—")
+                statBlock("BEST LEG", profile.bestLegDarts > 0 ? "\(profile.bestLegDarts) darts" : "—")
+            }
             HStack(spacing: 16) {
                 Label("\(profile.total100Plus) × 100+", systemImage: "100.circle")
                 Label("\(profile.total140Plus) × 140+", systemImage: "flame")
@@ -131,9 +142,8 @@ struct StatsView: View {
             .foregroundStyle(Theme.textSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(16)
-        .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
-        .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(Theme.stroke, lineWidth: 1))
+        .padding(Spacing.lg)
+        .cardStyle(cornerRadius: Corner.xl)
     }
 
     private func statBlock(_ label: String, _ value: String) -> some View {
@@ -205,9 +215,8 @@ struct StatsView: View {
                 .frame(height: 180)
             }
         }
-        .padding(16)
-        .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
-        .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(Theme.stroke, lineWidth: 1))
+        .padding(Spacing.lg)
+        .cardStyle(cornerRadius: Corner.xl)
     }
 
     // MARK: Recent matches
@@ -219,7 +228,10 @@ struct StatsView: View {
                 .foregroundStyle(Theme.textTertiary)
 
             ForEach(matches.prefix(15), id: \.id) { match in
-                matchRow(match)
+                NavigationLink(destination: MatchDetailView(match: match)) {
+                    matchRow(match)
+                }
+                .buttonStyle(.plain)
             }
         }
     }
@@ -245,9 +257,11 @@ struct StatsView: View {
                     .font(OcheFont.body(11))
                     .foregroundStyle(Theme.textTertiary)
             }
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(Theme.textTertiary)
         }
-        .padding(14)
-        .background(RoundedRectangle(cornerRadius: 14).fill(Theme.surface))
-        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.stroke, lineWidth: 1))
+        .padding(Spacing.md)
+        .cardStyle(cornerRadius: Corner.md)
     }
 }

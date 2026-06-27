@@ -49,7 +49,7 @@ struct HomeView: View {
                     .padding(.horizontal, 24)
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 16)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.85).delay(0.1), value: appeared)
+                    .animation(Motion.reveal.delay(0.1), value: appeared)
 
                     Spacer(minLength: 0)
 
@@ -143,14 +143,14 @@ private struct MenuButton: View {
                 .opacity(0.6)
         }
         .foregroundStyle(style == .primary ? Color.black : Theme.textPrimary)
-        .padding(.horizontal, 20)
+        .padding(.horizontal, Spacing.xl)
         .padding(.vertical, 17)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: Corner.lg)
                 .fill(style == .primary ? Theme.cyan : Theme.surface)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: Corner.lg)
                 .strokeBorder(style == .primary ? Color.clear : Theme.stroke, lineWidth: 1)
         )
     }

@@ -27,15 +27,15 @@ struct PopupCard: View {
             }
         }
         .padding(.horizontal, 28)
-        .padding(.vertical, 20)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24))
+        .padding(.vertical, Spacing.xl)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Corner.xxl))
         .overlay(
             Group {
                 if isCelebration {
-                    RoundedRectangle(cornerRadius: 24)
+                    RoundedRectangle(cornerRadius: Corner.xxl)
                         .strokeBorder(Theme.accentGradient, lineWidth: 2)
                 } else {
-                    RoundedRectangle(cornerRadius: 24)
+                    RoundedRectangle(cornerRadius: Corner.xxl)
                         .strokeBorder(event.color.opacity(0.45), lineWidth: 1.5)
                 }
             }
@@ -44,7 +44,7 @@ struct PopupCard: View {
         .scaleEffect(bounce ? 1.0 : 0.7)
         .onAppear {
             if isCelebration {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
+                withAnimation(Motion.bounce) {
                     bounce = true
                 }
             } else {
@@ -95,7 +95,7 @@ extension View {
                     }
                 }
             }
-            .animation(.spring(response: 0.35, dampingFraction: 0.65), value: event.wrappedValue?.id)
+            .animation(Motion.settle, value: event.wrappedValue?.id)
             .allowsHitTesting(false)
         )
     }

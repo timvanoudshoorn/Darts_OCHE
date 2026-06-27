@@ -96,9 +96,9 @@ struct ThrowForBullView: View {
                                     .font(OcheFont.body(12))
                                     .foregroundStyle(Theme.textSecondary)
                             }
-                            .padding(12)
-                            .background(RoundedRectangle(cornerRadius: 14).fill(Theme.surface))
-                            .woodFrame(cornerRadius: 14, lineWidth: 1.5)
+                            .padding(Spacing.md)
+                            .background(RoundedRectangle(cornerRadius: Corner.md).fill(Theme.surface))
+                            .woodFrame(cornerRadius: Corner.md, lineWidth: 1.5)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -113,8 +113,8 @@ struct ThrowForBullView: View {
                         Text("START MATCH")
                             .font(OcheFont.heading(20))
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(RoundedRectangle(cornerRadius: 18).fill(mode.accentColor))
+                            .padding(.vertical, Spacing.lg)
+                            .background(RoundedRectangle(cornerRadius: Corner.xl).fill(mode.accentColor))
                             .foregroundStyle(Color.black)
                     }
                     .buttonStyle(SquashButtonStyle())
@@ -130,13 +130,13 @@ struct ThrowForBullView: View {
                             Text("CONFIRM")
                                 .font(OcheFont.heading(18))
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(RoundedRectangle(cornerRadius: 18).fill(mode.accentColor))
+                                .padding(.vertical, Spacing.lg)
+                                .background(RoundedRectangle(cornerRadius: Corner.xl).fill(mode.accentColor))
                                 .foregroundStyle(Color.black)
                         }
                         .buttonStyle(SquashButtonStyle())
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 32)
+                        .padding(.horizontal, Spacing.xl)
+                        .padding(.bottom, Spacing.xxxl)
                     } else {
                         Text("Player \(currentIndex + 1) of \(players.count)")
                             .font(OcheFont.label(13))
@@ -178,7 +178,7 @@ struct ThrowForBullView: View {
         self.pendingDistance = nil
 
         if isLastPlayer {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            withAnimation(Motion.settle) {
                 showResults = true
             }
         } else {
@@ -216,7 +216,7 @@ private struct ResultMarker: View {
         .scaleEffect(appeared ? 1 : 2.4)
         .opacity(appeared ? 1 : 0)
         .onAppear {
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.45)) {
+            withAnimation(Motion.tap) {
                 appeared = true
             }
         }

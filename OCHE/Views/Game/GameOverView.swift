@@ -76,24 +76,24 @@ struct GameOverView: View {
                             Text("PLAY AGAIN")
                                 .font(OcheFont.heading(20))
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(RoundedRectangle(cornerRadius: 18).fill(mode.accentColor))
+                                .padding(.vertical, Spacing.lg)
+                                .background(RoundedRectangle(cornerRadius: Corner.xl).fill(mode.accentColor))
                                 .foregroundStyle(Color.black)
                         }
                         Button(action: { (onHome ?? defaultHome)() }) {
                             Text("HOME")
                                 .font(OcheFont.heading(18))
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                                .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
-                                .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(Theme.stroke, lineWidth: 1))
+                                .padding(.vertical, Spacing.md)
+                                .background(RoundedRectangle(cornerRadius: Corner.xl).fill(Theme.surface))
+                                .overlay(RoundedRectangle(cornerRadius: Corner.xl).strokeBorder(Theme.stroke, lineWidth: 1))
                                 .foregroundStyle(Theme.textPrimary)
                         }
                     }
                     .buttonStyle(SquashButtonStyle())
-                    .padding(.bottom, 32)
+                    .padding(.bottom, Spacing.xxxl)
                 }
-                .padding(20)
+                .padding(Spacing.xl)
             }
 
             if winnerIndex != nil {
@@ -104,7 +104,7 @@ struct GameOverView: View {
         .navigationBarBackButtonHidden(true)
         .onAppear {
             saveResult()
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.55)) {
+            withAnimation(Motion.bounce) {
                 revealed = true
             }
         }
@@ -142,8 +142,13 @@ struct GameOverView: View {
             HStack(spacing: 0) {
                 statBlock("3-DART AVG", String(format: "%.1f", s.threeDartAverage))
                 statBlock("FIRST 9 AVG", String(format: "%.1f", s.firstNineAverage))
-                statBlock("HIGHEST", "\(s.highestTurn)")
                 statBlock("CHECKOUT %", s.checkoutAttempts > 0 ? String(format: "%.0f%%", s.checkoutPercentage) : "—")
+            }
+
+            HStack(spacing: 0) {
+                statBlock("HIGHEST", "\(s.highestTurn)")
+                statBlock("HIGHEST CO", s.highestCheckout > 0 ? "\(s.highestCheckout)" : "—")
+                statBlock("BEST LEG", s.bestLegDarts.map { "\($0) darts" } ?? "—")
             }
 
             HStack(spacing: 16) {
@@ -154,12 +159,8 @@ struct GameOverView: View {
             .font(OcheFont.body(12))
             .foregroundStyle(Theme.textSecondary)
         }
-        .padding(16)
-        .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .strokeBorder(isWinner ? mode.accentColor.opacity(0.5) : Theme.stroke, lineWidth: isWinner ? 2 : 1)
-        )
+        .padding(Spacing.lg)
+        .cardStyle(cornerRadius: Corner.xl, isHighlighted: isWinner, highlightColor: mode.accentColor)
     }
 
     private func statBlock(_ label: String, _ value: String) -> some View {
@@ -178,7 +179,7 @@ struct GameOverView: View {
         guard !saved else { return }
         saved = true
 
-        let record = MatchRecord(mode: mode, playerNames: players.map(\.name), winnerIndex: winnerIndex, stats: stats)
+        let record = MatchRecord(mode: mode, playerNames: players.map(\.name), winnerIndex: winnerIndex, stats: stats, dartLog: dartLog)
         modelContext.insert(record)
 
         for (i, player) in players.enumerated() {
@@ -190,22 +191,9 @@ struct GameOverView: View {
                 return new
             }()
 
-            var finishedPoints: Int? = nil
-            if i == winnerIndex, mode == .standard {
-                finishedPoints = stats[i].dartsThrown > 0 ? lastTurnPoints(for: i) : nil
-            }
-
-            profile.record(stats: stats[i], won: i == winnerIndex, finishedPoints: finishedPoints)
+            profile.record(stats: stats[i], won: i == winnerIndex)
         }
 
         try? modelContext.save()
-    }
-
-    /// The total points of the player's final (checkout) turn — used to track
-    /// "best checkout" on their profile.
-    private func lastTurnPoints(for playerIndex: Int) -> Int? {
-        let entries = dartLog.filter { $0.playerIndex == playerIndex }
-        guard let lastTurn = entries.last?.turnIndex else { return nil }
-        return entries.filter { $0.turnIndex == lastTurn }.reduce(0) { $0 + $1.dart.points }
     }
 }

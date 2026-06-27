@@ -35,8 +35,7 @@ struct SettingsSheet: View {
                     divider
                     toggleRow("Screen Flash", icon: "bolt.fill", isOn: $settings.flashEnabled)
                 }
-                .background(RoundedRectangle(cornerRadius: 18).fill(Theme.surface))
-                .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(Theme.stroke, lineWidth: 1))
+                .cardStyle(cornerRadius: Corner.xl)
 
                 Spacer()
 

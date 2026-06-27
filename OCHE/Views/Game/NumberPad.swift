@@ -81,20 +81,20 @@ struct MultiplierSelector: View {
             ForEach(Multiplier.allCases) { mult in
                 let isActive = multiplier == mult
                 Button {
-                    withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                    withAnimation(Motion.snap) {
                         multiplier = mult
                     }
                 } label: {
                     Text(mult.fullName.uppercased())
                         .font(OcheFont.button(18))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
+                        .padding(.vertical, Spacing.md)
                         .background(
-                            RoundedRectangle(cornerRadius: 14)
+                            RoundedRectangle(cornerRadius: Corner.md)
                                 .fill(isActive ? mult.color : Theme.surface)
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14)
+                            RoundedRectangle(cornerRadius: Corner.md)
                                 .strokeBorder(isActive ? Color.clear : Theme.stroke, lineWidth: 1)
                         )
                         .foregroundStyle(isActive ? Color.black : Theme.textSecondary)
@@ -128,16 +128,16 @@ struct NumberPadButton: View {
             action()
         } label: {
             ZStack {
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: Corner.lg)
                     .fill(Theme.surface)
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: Corner.lg)
                     .fill(stateTint)
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: Corner.lg)
                     .strokeBorder(borderColor, lineWidth: borderWidth)
 
                 if ripple {
                     RippleBurst(color: baseColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .clipShape(RoundedRectangle(cornerRadius: Corner.lg))
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.46) { ripple = false }
                         }

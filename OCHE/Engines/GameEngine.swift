@@ -26,6 +26,26 @@ struct DartLogEntry: Codable, Equatable {
     var isCheckoutHit: Bool = false
 }
 
+extension Array where Element == DartLogEntry {
+    /// Groups one player's entries into turns, preserving encounter order —
+    /// the same grouping `MatchStatistics.compute` uses, shared so a match's
+    /// computed stats and its turn-by-turn history view can never disagree
+    /// about where turn boundaries fall.
+    func groupedByTurn(playerIndex: Int) -> [(turnIndex: Int, darts: [DartLogEntry])] {
+        let entries = filter { $0.playerIndex == playerIndex }
+        var turnOrder: [Int] = []
+        var turnDarts: [Int: [DartLogEntry]] = [:]
+        for entry in entries {
+            if turnDarts[entry.turnIndex] == nil {
+                turnDarts[entry.turnIndex] = []
+                turnOrder.append(entry.turnIndex)
+            }
+            turnDarts[entry.turnIndex]!.append(entry)
+        }
+        return turnOrder.map { ($0, turnDarts[$0]!) }
+    }
+}
+
 /// Drives the center-screen popup ("OUT ✓", "Triple 20 / 60 pts", "Busted!", "Halved!"...).
 /// Popups are purely informational/non-blocking — the UI auto-dismisses them and the
 /// player can keep tapping immediately.

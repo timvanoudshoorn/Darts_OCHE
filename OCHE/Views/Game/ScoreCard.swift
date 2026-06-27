@@ -52,22 +52,20 @@ struct ScoreCard: View {
                         .foregroundStyle(Theme.textSecondary)
                 }
             }
-            .padding(.leading, 14)
-            .padding(.trailing, 16)
-            .padding(.vertical, 14)
+            .padding(Spacing.lg)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(isActive ? Theme.surfaceElevated : Theme.surface)
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: Corner.md)
                 .strokeBorder(Theme.stroke, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: Corner.md))
         .onChange(of: remaining) { _ in
-            withAnimation(.spring(response: 0.25, dampingFraction: 0.4)) {
+            withAnimation(Motion.impact) {
                 slamScale = 1.06
             }
-            withAnimation(.spring(response: 0.25, dampingFraction: 0.4).delay(0.08)) {
+            withAnimation(Motion.impact.delay(0.08)) {
                 slamScale = 1.0
             }
         }
@@ -94,10 +92,10 @@ struct DartsThisTurnView: View {
             ForEach(0..<3, id: \.self) { i in
                 let dart = i < darts.count ? darts[i] : nil
                 ZStack {
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: Corner.sm)
                         .fill(Theme.surface)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10)
+                            RoundedRectangle(cornerRadius: Corner.sm)
                                 .strokeBorder(dart != nil ? (dart?.multiplier.color ?? accent) : Theme.stroke, lineWidth: 1.5)
                         )
                     if let dart {

@@ -67,9 +67,8 @@ struct Practice170GameView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(20)
-                .background(RoundedRectangle(cornerRadius: 20).fill(Theme.surface))
-                .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Theme.stroke, lineWidth: 1))
+                .padding(Spacing.xl)
+                .cardStyle(cornerRadius: Corner.xl)
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
